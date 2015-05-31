@@ -55,9 +55,20 @@ end
 rand('state',0);
 iter = 2;
 % Loop until entire fill region has been covered
+
+times = [0, 0, 0];
+count = 0;
+
 while any(fillRegion(:))
-    fprintf('%d\n',sum(fillRegion(:)));
+
+  % Watch out, uncommenting these lines makes profiling very inaccurate.
+  %fprintf('Remaining pixels to fill: %d\n', sum(fillRegion(:)));
+  %fprintf(repmat('\b', 1, digits));
+  %fprintf('%d',sum(fillRegion(:)));
+  %digits = fix(abs(log10(abs(sum(fillRegion(:))))))+1;
+  
   % Find contour & normalized gradients of fill region
+  tic
   dR = find(conv2(double(fillRegion),[1,1,1;1,-8,1;1,1,1],'same')>0);
 
   [Nx,Ny] = gradient(1-fillRegion);
@@ -66,11 +77,14 @@ while any(fillRegion(:))
   N(~isfinite(N))=0; % handle NaN and Inf
   
   % Compute confidences along the fill front
+  %toc;
   for k=dR'
     Hp = getpatch(sz,k);
     q = Hp(~(fillRegion(Hp)));
     C(k) = sum(C(q))/numel(Hp);
   end
+  %toc;
+  
   
   % Compute patch priorities = confidence term * data term
   D(dR) = abs(Ix(dR).*N(:,1)+Iy(dR).*N(:,2)) + 0.001;
@@ -82,10 +96,15 @@ while any(fillRegion(:))
   [Hp,rows,cols] = getpatch(sz,p);
   toFill = fillRegion(Hp);
   
+  times(1) = times(1)+toc;
+  
   % Find exemplar that minimizes error, Hq
+  tic
   Hq = bestexemplar(img,img(rows,cols,:),toFill',sourceRegion);
+  times(2) = times(2) + toc;
   
   % Update fill region
+  tic
   fillRegion(Hp(toFill)) = 0;
   
   % Propagate confidence & isophote values
@@ -105,7 +124,13 @@ while any(fillRegion(:))
     fillMovie(iter).colormap=[];
   end
   iter = iter+1;
+  times(3) = times(3) + toc;
+  count = count + 1;
 end
+
+fprintf('Run times (by parts): ');
+fprintf('%.3fs ', times); 
+fprintf('\n');
 
 inpaintedImg=img;
 
