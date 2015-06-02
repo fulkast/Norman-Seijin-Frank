@@ -19,8 +19,8 @@ n1=im_size(1);
 n2=im_size(2);
 d=patch-ovlp;
 D=patch;
-n1new=(floor(n1/d)+1+shift(1))*d;
-n2new=(floor(n2/d)+1+shift(2))*d;
+n1new=(ceil((n1+shift(1))/d))*d;
+n2new=(ceil((n2+shift(2))/d))*d;
 Inew=zeros(ovlp+n1new,ovlp+n2new);
 
 %X=zeros(size(I,3)*d*d,n2new*n1new/d^2);

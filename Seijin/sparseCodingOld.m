@@ -55,7 +55,7 @@ for nn = 1:n
     y=Y(:,nn);
     v=U'*(U.*repmat(m,1,size(U,2)));
     sparseness=0;
-    while (sum(y.^2)>sigma*norm(x)&&sparseness/dim<0.5)
+    while (sum(y.^2)>sigma*norm(x))%&&(sparseness/dim<0.5)
         % TO BE FILLED 
         ct=ct+1;   
         [foo,k]=max(y.^2,[],1);
