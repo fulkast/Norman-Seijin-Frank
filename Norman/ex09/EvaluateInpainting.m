@@ -28,13 +28,19 @@ for i = 3:length(file_list) % running through the folder
     % Read the respective binary mask
     % EVALUATION IS DONE WITH A FIXED MASK
     mask = imread(mask_name);
-    mask = random_mask(size(I,1), 0.7);
+    %mask = random_mask(size(I,1), 0.7);
     
     I_mask = I;
     I_mask(~mask) = 0;
           
     % Call the main inPainting function
     fprintf('Running the in-pating algorithm...\n');
+    
+    sf = 1.;
+    I = imresize(I, sf, 'bilinear');
+    I_mask = imresize(I_mask, sf, 'nearest');
+    mask = imresize(mask, sf, 'nearest');
+    
     I_rec = inPainting(I_mask, mask);
     
     figure(1)
