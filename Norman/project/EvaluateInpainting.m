@@ -22,6 +22,10 @@ fileList = dir(dataDir);
 errors = []; 
 count = 1;
 
+% Control random number generator (in case it is used).
+rng('default');
+rng(1);
+
 %% Loop over data dir
 for i = 3:length(fileList) 
     
