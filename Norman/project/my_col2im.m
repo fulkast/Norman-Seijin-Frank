@@ -1,6 +1,5 @@
-function I_rec = my_col2im(X, patch, im_size,ovlp,shift)
-shift(1)=mod(shift(1),patch-ovlp);
-shift(2)=mod(shift(2),patch-ovlp);
+function I_rec = my_col2im(X, patch, imSize , overlap, shift)
+
 % Provides the functionality of col2im function of the image processing
 % toolbox.
 %
@@ -13,49 +12,78 @@ shift(2)=mod(shift(2),patch-ovlp);
 % OUTPUT
 % I_rec: image
 
-% It will only work for orthogonal matrices and exact patches coverage
+if nargin < 5
+    shift = [0, 0];
+end
+if nargin < 4
+    overlap = 0;
+end
 
-n1=im_size(1);
-n2=im_size(2);
-d=patch-ovlp;
-D=patch;
-n1new=(ceil((n1+shift(1))/d))*d;
-n2new=(ceil((n2+shift(2))/d))*d;
-Inew=zeros(ovlp+n1new,ovlp+n2new);
+if numel(patch)==1
+    patch = [patch, patch];
+end
 
-%X=zeros(size(I,3)*d*d,n2new*n1new/d^2);
-for i=1:n1new/d
-    for j=1:n2new/d
-        
-        IM=reshape(X(:,(i-1)*n2new/d+j),[D,D,size(X,1)/D^2]);
-        for k=1:ovlp/2
-            IM(:,k)=IM(:,k)*k/ovlp;
-            IM(k,:)=IM(k,:)*k/ovlp;
-            IM(:,D-k+1)=IM(:,D-k+1)*k/ovlp;
-            IM(D-k+1,:)=IM(D-k+1,:)*k/ovlp;
-        end
-        for k=ovlp/2+1:ovlp
-            IM(:,k)=IM(:,k)*(k-1)/ovlp;
-            IM(k,:)=IM(k,:)*(k-1)/ovlp;
-            IM(:,D-k+1)=IM(:,D-k+1)*(k-1)/ovlp;
-            IM(D-k+1,:)=IM(D-k+1,:)*(k-1)/ovlp;
-        end        
-        
-        
-        
-        Inew((1+(i-1)*d):(ovlp+i*d),(1+(j-1)*d):(ovlp+j*d),:)=Inew((1+(i-1)*d):(ovlp+i*d),(1+(j-1)*d):(ovlp+j*d),:)+IM;
+if numel(overlap)==1
+    overlap = [overlap, overlap];
+end
 
+% if size(X,1) ~= prod(n)
+%     error('Patch size does not match the input X');
+% end
+
+if any(shift > 0)
+    error('Shifts are not supported yet');
+    % Need to adapt for loop.
+end
+
+% Clip shift.
+shift(1)=mod(shift(1),patch(1)-overlap(1));
+shift(2)=mod(shift(2),patch(2)-overlap(1));
+
+% Patch sizes.
+d = patch - overlap;
+D = patch;
+
+% Number of patches per dimension.
+n = ceil([(imSize(1)+shift(1))/d(1), (imSize(2)+shift(2))/d(2)]);
+
+% Number of channels.
+if numel(imSize) == 3
+    c = imSize(3);
+else
+    c = 1;
+end
+
+% If image has to be shifted.
+nNew = n.*d+overlap;
+
+% Allocate, but don't initialize.
+I_rec(nNew(1), nNew(2), c) = cast(0, 'like', X);
+
+for j = 1:size(X,2)
+    % Patch indices (zero-based).
+    pj = mod(j-1, n(2));
+    pi = floor((j-1)/n(2));
+    pimin = pi*d(1)+1;
+    pimax = pimin+d(1)-1;
+    pjmin = pj*d(2)+1;
+    pjmax = pjmin+d(2)-1;
+    if any(overlap > 0)
+        pp = reshape(X(:,j), D(1), D(2));
+        I_rec(pimin:pimax, pjmin:pjmax) = pp(1:d, 1:d);
+    else
+        % This is faster.
+        I_rec(pimin:pimax, pjmin:pjmax) = reshape(X(:,j), D(1), D(2));
     end
 end
 
-
-for k=ovlp/2+1:ovlp
-    Inew(:,k)=Inew(:,k)*ovlp/(k-1);
-    Inew(:,ovlp+n2new-k+1)=Inew(:,ovlp+n2new-k+1)*ovlp/(k-1);
-    Inew(k,:)=Inew(k,:)*ovlp/(k-1);
-    Inew(ovlp+n1new-k+1,:)=Inew(ovlp+n1new-k+1,:)*ovlp/(k-1);
+% If image has to be shifted.
+if any(shift > 0) || any(overlap > 0)
+    imin = shift(1)+1+overlap(1)/2;
+    imax = shift(1)+imSize(1)+overlap(1)/2;
+    jmin = shift(2)+1+overlap(2)/2;
+    jmax = shift(2)+imSize(2)+overlap(2)/2;
+    I_rec = I_rec(imin:imax,jmin:jmax,:);
 end
-I_rec(:,:,:)=Inew(1+ovlp/2+shift(1):shift(1)+n1+ovlp/2,shift(2)+1+ovlp/2:shift(2)+n2+ovlp/2,:);
-
 
 
