@@ -66,6 +66,7 @@ while any(fillRegion(:))
   %fprintf(repmat('\b', 1, digits));
   %fprintf('%d',sum(fillRegion(:)));
   %digits = fix(abs(log10(abs(sum(fillRegion(:))))))+1;
+  %disp(sum(fillRegion(:)))
   
   % Find contour & normalized gradients of fill region
   tic
@@ -78,11 +79,13 @@ while any(fillRegion(:))
   
   % Compute confidences along the fill front
   %toc;
-  for k=dR'
-    Hp = getpatch(sz,k);
-    q = Hp(~(fillRegion(Hp)));
-    C(k) = sum(C(q))/numel(Hp);
-  end
+  %if length(dR)>1000 && mod(count,1000) == 0
+    for k=dR'
+      Hp = getpatch(sz,k);
+      q = Hp(~(fillRegion(Hp)));
+      C(k) = sum(C(q))/numel(Hp);
+    end
+  %end
   %toc;
   
   
@@ -187,5 +190,10 @@ s=size(img); ind=reshape(1:s(1)*s(2),s(1),s(2));
 %---------------------------------------------------------------------
 function [img,fillImg,fillRegion] = loadimgs(imgFilename,fillFilename,fillColor)
 img = imread(imgFilename); fillImg = imread(fillFilename);
+if ndims(img) ~= 3
+  img(:,:,2) = img(:,:,1);
+  img(:,:,3) = img(:,:,1);
+end
+  
 fillRegion = fillImg(:,:,1)==fillColor(1) & ...
     fillImg(:,:,2)==fillColor(2) & fillImg(:,:,3)==fillColor(3);
