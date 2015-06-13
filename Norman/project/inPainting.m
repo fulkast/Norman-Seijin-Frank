@@ -1,86 +1,59 @@
 function I_rec = inPainting(I, mask)
-
-
-% Perform the actual inpainting of the image 
+% Perform the actual inpainting of the image
 
 % INPUT
 % I: (n x n) masked image
 % mask: (n x n) the mask hidding image information
 %
 % OUTPUT
-% I_rec = Reconstructed image 
-starting=cputime;
+% I_rec = Reconstructed image
 
-% Parameters
-ovlp=8; % even, less or equal to half the size of neib
-rc_min = 0.01; % rc_min: minimal residual correlation before stopping
-neib = 16; % neib: The patch sizes used in the decomposition of the image
-sigma = 0.01; % sigma: residual error stopping criterion, normalized by signal norm
+%% Parameters
+overlap=8;      % even, less or equal to half the size of neib
+rc_min = 0.01;  % rc_min: minimal residual correlation before stopping
+neib = 16;      % neib: The patch sizes used in the decomposition of the image
+sigma = 0.01;   % sigma: residual error stopping criterion, normalized by signal norm
+verbose = true; %
 
-condition=[0 1 0;1 1 1;0 1 0];
+%% Go!
 shift=[0 0];
 n1=size(I,1);
 n2=size(I,2);
+starttime = cputime;
+profiling = {};
 
-% while (numel(find(mask==0)~=0))
-% maskSparse=filterImage(mask,condition);
-% idx=find(maskSparse~=0);
-% maskSparse(idx)=1;
+% Get dictionary. Load it from dictionary.mat if available.
+U = buildDictionary(neib*neib);
+profiling(end+1:end+2) = {cputime-starttime, 'Build dictionary'};
 
-% Construct your dictionary
-% If you load your own dictionary U calculated offline you don't have to 
-% add anything here
- U = buildDictionary(neib*neib);  % TO BE FILLED 
- 
- 
- 
- 
-M = my_im2col(mask, neib,ovlp,shift);  
-% MS= my_im2col(maskSparse, neib,ovlp,shift);  
-I_rec=zeros(size(I));
- % Get patches of size neib x neib from the image and the mask and
-% convert each patch to 1D signal
-% if (size(I,3)==3)
-%     %I=rgb2hsv(I);
-%     for i=1:3
-%           X = my_im2col(I(:,:,i), neib,ovlp);
-%           Z = sparseCoding(U, X, M,MS, sigma, rc_min);
-%           X_rec=U*Z;
-%           idx=find(M~=0);
-%           %X_rec(idx)=X(idx);
-%           I_rec(:,:,i)=my_col2im(X_rec,neib,[n1,n2],ovlp);
-%     end
-%    % I_rec=hsv2rgb(I_rec);
-%     
-% else
+% Extract patches from images.
+M = my_im2col(mask, neib, overlap, shift);
+X = my_im2col(I,    neib, overlap, shift);
+profiling(end+1:end+2) = {cputime-starttime, 'Extract patches'};
 
-    % Do the sparse coding with modified Matching Pursuit
+% Sparse coding for the known (unmasked) parts of the image.
+Z = sparseCoding(U, X, M, sigma, rc_min);
+profiling(end+1:end+2) = {cputime-starttime, 'Sparse coding'};
 
+% Reconstruct the missing pixels using the sparse coding.
+X_rec=U*Z;
+idx=find(M~=0);
+X_rec(idx)=X(idx);
+I_rec=my_col2im(X_rec,neib,[n1,n2],overlap,shift);
+profiling(end+1:end+2) = {cputime-starttime, 'Reconstruct'};
 
-    X = my_im2col(I, neib,ovlp,shift);  
-     % [Z,newM] = sparseCodingOld(U, X, M, MS,sigma, rc_min);
-     Z = sparseCoding(U, X, M,sigma, rc_min);
-       
-     X_rec=U*Z;
-      idx=find(M~=0);
-     X_rec(idx)=X(idx);
-%     mask=my_col2im(newM,neib,[n1,n2],ovlp,shift);
-      I_rec=my_col2im(X_rec,neib,[n1,n2],ovlp,shift);
-%      I=I_rec;
-
-%    mask(find(mask~=1))=0;
-%      shift(1)=shift(1)+(neib-ovlp)/2;
-%      shift(2)=shift(2)+(neib-ovlp)/2;
-%       ovlp=ovlp*2;
-%       neib=neib*2;
-%    imshow(mask.*I);
-
-  
-fprintf('Took this long %.2f \n',cputime-starting)
+if verbose
+    fprintf('Profiling:\n');
+    fprintf('----------------------------\n');
+    tstart = 0;
+    for i=1:2:length(profiling)
+        tend = profiling{i};
+        tdelta = tend - tstart;
+        fprintf('   %s: %gs\n', profiling{i+1}, tdelta);
+        tstart = tend;
+    end
+    fprintf('   Total: %gs\n', profiling{end-1});
+    fprintf('----------------------------\n');
 end
-%end
-% You need to do the image reconstruction using the known image information
-% and for the missing pixels use the reconstruction from the sparse coding.
-% The mask will help you to distinguish between these two parts.
 
-% TO BE FILLED
+end
