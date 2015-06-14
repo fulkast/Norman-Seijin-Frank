@@ -63,7 +63,7 @@ if any(shift > 0) || any(overlap > 0)
 end
 
 % Preallocate output X (this is way faster than using zeros(sx(1), sx(2)))
-X(sx(1), sx(2)) = cast(0, 'like', I);
+X(sx(1), sx(2)) = cast(0, class(I));
 
 % % Idea: copy line-by-line, hoping that this goes faster.
 % % Block-copy (below) is faster.

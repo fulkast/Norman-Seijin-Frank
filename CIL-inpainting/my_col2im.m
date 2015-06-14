@@ -61,7 +61,7 @@ end
 nNew = n.*d+overlap;
 
 % Allocate, but don't initialize.
-I_rec(nNew(1), nNew(2), c) = cast(0, 'like', X);
+I_rec(nNew(1), nNew(2), c) = cast(0, class(X));
 
 if blend
     B = zeros(nNew(1), nNew(2), c);
