@@ -1,4 +1,4 @@
-function I_rec = inPainting(I, mask)
+function I_rec = inPainting(I, mask, settings)
 % Perform the actual inpainting of the image
 
 % INPUT
@@ -14,6 +14,14 @@ rc_min = 0.01;  % rc_min: minimal residual correlation before stopping
 neib = 16;      % neib: The patch sizes used in the decomposition of the image
 sigma = 0.01;   % sigma: residual error stopping criterion, normalized by signal norm
 verbose = true; %
+
+if nargin == 3
+    overlap = settings.overlap;
+    rc_min = settings.rc_min;
+    neib = settings.neib;
+    sigma = settings.sigma;
+    verbose = settings.verbose;
+end
 
 %% Go!
 shift=[0 0];
