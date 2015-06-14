@@ -39,7 +39,7 @@ profiling(end+1:end+2) = {cputime-starttime, 'Sparse coding'};
 X_rec=U*Z;
 idx=find(M~=0);
 X_rec(idx)=X(idx);
-I_rec=my_col2im(X_rec,neib,[n1,n2],overlap,shift);
+I_rec=my_col2im(X_rec,neib,[n1,n2],overlap,shift,true);
 profiling(end+1:end+2) = {cputime-starttime, 'Reconstruct'};
 
 if verbose

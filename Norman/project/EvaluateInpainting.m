@@ -31,14 +31,14 @@ for i = 3:length(fileList)
     
     % Input image and mask.
     fileName = fileList(i).name;
-    filePath = fullfile(dataDir, fileName) 
+    filePath = fullfile(dataDir, fileName);
     if (strcmp(filePath(end-7:end), 'mask.png'))
         continue;
     end
     maskName = [filePath(1:end-4) '_mask.png'];
         
     % Read image.
-    fprintf('Reading file %s...\n', filePath)
+    fprintf('Reading file %s...\n', filePath);
     try
         I = imread(filePath);
         if size(I,3) > 1
@@ -66,14 +66,6 @@ for i = 3:length(fileList)
     
     % In-painting.
     I_rec = inPainting(I_mask, mask);
-   
-    if showResults
-        figure(1)
-        imshow(I_rec);
-        figure(2)
-        imshow(I_mask);
-        pause
-    end
     
     if saveResults
         if ~exist(outDir, 'dir')
@@ -88,6 +80,14 @@ for i = 3:length(fileList)
     errors(count) = mean(mean(mean(((I - I_rec) ).^2)));
     fprintf('error= %s  \n',errors(count));
     count = count + 1;
+    
+    if showResults
+        figure(1)
+        imshow(I_rec);
+        figure(2)
+        imshow(I_mask);
+        pause
+    end
 end
 
 result(1) = mean(errors);
