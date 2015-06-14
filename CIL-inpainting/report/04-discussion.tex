@@ -1,0 +1,149 @@
+
+\section{Discussion (Computational Intelligence Laboratory Requirements)}
+\label{sec:discussion}
+\label{sec:cil}
+
+Your semester project is a group effort. It consists of four parts:
+\begin{enumerate}
+\item The programming assignments you solve during the semester.
+\item Developing a novel solution for one of the assignments, e.g. by
+  combining methods from previous programming assignments into a novel
+  solution.
+\item Comparing your novel solution to previous assignments.
+\item Writing up your findings in a short scientific paper.
+\end{enumerate}
+
+\subsection{Developing a Novel Solution}
+
+As your final programming assignment, you develop a novel solution to
+one of the four application problems. You are free to exploit any idea
+you have, provided it is not identical to any other group submission
+or existing Matlab implementation of an algorithm on the
+internet\footnote{\url{http://www.ethz.ch/students/semester/plagiarism_s_en.pdf}}.
+
+Two examples for developing a novel solution:
+\begin{itemize}
+\item You implemented a collaborative filtering algorithm based on
+  dimension reduction as part of an assignment. Now you apply
+  dimension reduction to inpainting.
+\item You implemented both a clustering and a sparse coding algorithm
+  for image compression. Now you combine both techniques into a novel
+  compression method.
+\end{itemize}
+
+\subsection{Comparison to Baselines}
+
+You compare your novel algorithm to \emph{at least two baseline
+  algorithms}. For the baselines, you can use the implementations you
+developed as part of the programming assignments.
+
+
+\subsection{Write Up}
+
+The submission must be in PDF form, using the \LaTeX{} template
+corresponding to the IEEE style of publication. Refer to
+Section~\ref{sec:latex-primer} for more information about preparing
+your document. The document should be a maximum of {\bf 4 pages}.
+
+\subsection{\LaTeX{} Primer}
+\label{sec:latex-primer}
+
+\LaTeX{} is one of the most commonly used document preparation systems
+for scientific journals and conferences. It is based on the idea
+that authors should be able to focus on the content of what they are
+writing without being distracted by its visual presentation.
+The source of this file can be used as a starting point for how to use
+the different commands in \LaTeX{}. We are using an IEEE style for
+this course.
+
+\subsubsection{Installation}
+
+There are various different packages available for processing \LaTeX{}
+documents.
+On Windows, use the Mik\TeX{} package (\url{http://miktex.org/}), and
+on OSX use MacTeX
+(\url{http://www.tug.org/mactex/2009/}). Alternatively, on OSX, you
+can install the \texttt{tetex} package via
+Fink\footnote{\url{http://www.finkproject.org/}} or 
+Macports\footnote{\url{http://www.macports.org/}}.
+
+\subsubsection{Compiling \LaTeX{}}
+Your directory should contain at least 4 files, in addition to image
+files. Images should be in \texttt{.png}, \texttt{.jpg} or
+\texttt{.pdf} format.
+\begin{itemize}
+\item IEEEtran.cls
+\item IEEEtran.bst
+\item groupXX-submission.tex
+\item groupXX-literature.bib
+\end{itemize}
+Note that you should replace groupXX with your chosen group name.
+Then, from the command line, type:
+\begin{verbatim}
+$ pdflatex groupXX-submission
+$ bibtex groupXX-literature
+$ pdflatex groupXX-submission
+$ pdflatex groupXX-submission
+\end{verbatim}
+This should give you a PDF document \texttt{groupXX-submission.pdf}.
+
+\subsubsection{Equations}
+
+There are three types of equations available: inline equations, for
+example $y=mx + c$, which appear in the text, unnumbered equations
+$$y=mx + c,$$
+which are presented on a line on its own, and numbered equations
+\begin{equation}
+  \label{eq:linear}
+  y = mx + c
+\end{equation}
+which you can refer to at a later point (Equation~(\ref{eq:linear})).
+
+\subsubsection{Tables and Figures}
+
+Tables and figures are ``floating'' objects, which means that the text
+can flow around it.
+Note
+that \texttt{figure*} and \texttt{table*} cause the corresponding
+figure or table to span both columns.
+
+
+\subsection{Grading}
+
+There are two different types of grading criteria applied to your
+project, with the corresponding weights shown in brackets.
+\begin{description}
+\item[Competitive] \ \\
+  The following criteria is scored based on your rank
+  in comparison with the rest of the class.
+  \begin{itemize}
+  \item time taken for computation (10\%)
+  \item average rank for all other criteria relevant to the task, for
+    example reconstruction error and sparsity (20\%)
+  \end{itemize}
+  The ranks will then be converted on a linear scale into a grade
+  between 4 and 6.
+\item[Non-competitive] \ \\
+  The following criteria is scored based on an
+  evaluation by the teaching assistants.
+  \begin{itemize}
+  \item quality of paper (30\%)
+  \item quality of implementation (20\%)
+  \item creativity of solution (20\%)
+  \end{itemize}
+\end{description}
+
+\subsection{Submission System}
+
+The deadline for submitting your project report is Friday, 22 June
+2012.
+You need to submit:
+\begin{itemize}
+\item PDF of paper.
+\item Archive (\texttt{.tar.gz} or \texttt{.zip}) of software. Please
+  do not forget to include author information in the source archive.
+\end{itemize}
+
+\textbf{Important:} Please check the submission instructions on the webpage 
+as it is the most updated instructions. 
+
