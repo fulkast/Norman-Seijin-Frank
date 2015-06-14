@@ -1,4 +1,4 @@
-function I_rec = my_col2im(X, patch, imSize , overlap, shift)
+function I_rec = my_col2im(X, patch, imSize, overlap, shift, blend)
 
 % Provides the functionality of col2im function of the image processing
 % toolbox.
@@ -12,6 +12,9 @@ function I_rec = my_col2im(X, patch, imSize , overlap, shift)
 % OUTPUT
 % I_rec: image
 
+if nargin < 6
+    blend = false;
+end
 if nargin < 5
     shift = [0, 0];
 end
@@ -60,6 +63,22 @@ nNew = n.*d+overlap;
 % Allocate, but don't initialize.
 I_rec(nNew(1), nNew(2), c) = cast(0, 'like', X);
 
+if blend
+    B = zeros(nNew(1), nNew(2), c);
+    I_rec = zeros(nNew(1), nNew(2), c);
+    blending = ones(D(1),D(2),c);
+    o1_2 = floor(overlap(1)/2);
+    o2_2 = floor(overlap(2)/2);
+    for k=1:o1_2
+        blending(:,k)        = blending(:,k)*(k-1)/o1_2;
+        blending(:,D(2)-k+1) = blending(:,D(2)-k+1)*(k-1)/o1_2;
+    end
+    for k=1:o2_2
+        blending(k,:)        = blending(k,:)*(k-1)/o2_2;
+        blending(D(1)-k+1,:) = blending(D(1)-k+1,:)*(k-1)/o2_2;
+    end
+end
+
 for j = 1:size(X,2)
     % Patch indices (zero-based).
     pj = mod(j-1, n(2));
@@ -69,11 +88,26 @@ for j = 1:size(X,2)
     pjmin = pj*d(2)+1;
     pjmax = pjmin+d(2)-1;
     if any(overlap > 0)
-        pp = reshape(X(:,j), D(1), D(2));
-        I_rec(pimin:pimax, pjmin:pjmax) = pp(1:d, 1:d);
+        if blend
+            pi0 = pi*d(1)+1;
+            pi1 = pi0+D(1)-1;
+            pj0 = pj*d(2)+1;
+            pj1 = pj0+D(2)-1;
+            I_rec(pi0:pi1, pj0:pj1) = I_rec(pi0:pi1, pj0:pj1) + blending.*reshape(X(:,j), D(1), D(2));
+            B(pi0:pi1, pj0:pj1) = B(pi0:pi1, pj0:pj1) + blending;
+        else
+            pp = reshape(X(:,j), D(1), D(2));
+            I_rec(pimin:pimax, pjmin:pjmax) = pp(1:d, 1:d);
+        end
     else
-        % This is faster.
+        % This is faster. (overlap = 0, d == D)
         I_rec(pimin:pimax, pjmin:pjmax) = reshape(X(:,j), D(1), D(2));
+    end
+end
+
+if blend
+    for i=1:c
+        I_rec(:,:,i) = I_rec(:,:,i) ./ B;
     end
 end
 
