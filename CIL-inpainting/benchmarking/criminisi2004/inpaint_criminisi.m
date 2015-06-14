@@ -1,4 +1,4 @@
-function [inpaintedImg,origImg,fillImg,C,D,fillMovie] = inpaint_criminisi(imgFilename,maskFilename)
+function [inpaintedImg,origImg,fillImg,C,D,fillMovie] = inpaint_criminisi(imgFilename, maskFilename, verbose)
 %INPAINT  Exemplar-based inpainting.
 %
 % Usage:   [inpaintedImg,origImg,fillImg,C,D,fillMovie] ...
@@ -43,6 +43,10 @@ temp = Ix; Ix = -Iy; Iy = temp;  % Rotate gradient 90 degrees
 C = double(sourceRegion);
 D = repmat(-.1,sz);
 
+if nargin<3
+    verbose = false;
+end
+
 % Visualization stuff
 if nargout==6
   fillMovie(1).cdata=uint8(img); 
@@ -60,12 +64,16 @@ count = 0;
 
 while any(fillRegion(:))
 
-  % Watch out, uncommenting these lines makes profiling very inaccurate.
-  %fprintf('Remaining pixels to fill: %d\n', sum(fillRegion(:)));
-  %fprintf(repmat('\b', 1, digits));
-  %fprintf('%d',sum(fillRegion(:)));
-  %digits = fix(abs(log10(abs(sum(fillRegion(:))))))+1;
+    if verbose && mod(count, 10) == 0
+        if count == 0
+            fprintf('Remaining pixels to fill: %d', sum(fillRegion(:)));
+        end
+        % Watch out, this might have negative impact on performance.
+        digits = fix(abs(log10(abs(sum(fillRegion(:))))))+1;
+        fprintf(repmat('\b', 1, digits));
+        fprintf('%d',sum(fillRegion(:)));
   %disp(sum(fillRegion(:)))
+    end
   
   % Find contour & normalized gradients of fill region
   tic
@@ -129,10 +137,12 @@ while any(fillRegion(:))
   times(3) = times(3) + toc;
   count = count + 1;
 end
-
+if verbose
+    fprintf('\n')
 fprintf('Run times (by parts): ');
 fprintf('%.3fs ', times); 
 fprintf('\n');
+end
 
 inpaintedImg=img;
 

@@ -1,4 +1,4 @@
-function benchmark_criminisi(inputDir, outputDir, pathToMask)
+function benchmark_criminisi(inputDir, outputDir, pathToMask, verbose)
 % benchmark_criminisi runs in-painting on the images provided in input dir.
 % The implementation is based on the proposition by Criminisi et. al 2004,
 % and is provided by Bhat 
@@ -14,6 +14,8 @@ function benchmark_criminisi(inputDir, outputDir, pathToMask)
 % pathToMask:   Optional. If set, this mask will be used for all images
 %               If not, the above file pattern will be applied.
 %
+% verbose:      Print additional information to console.
+%
 % OUTPUT:       The script writes result into outputDir:
 %               image_rec   <filename>_out.png
 
@@ -22,9 +24,12 @@ OUT_SUFFIX  = '_out';
 MASK_SUFFIX = '_mask';
 
 useSingleMask = false;
-if nargin == 3
+if nargin >= 3
     useSingleMask = exist(pathToMask, 'file');
     maskPath = pathToMask;
+end 
+if nargin < 3
+    verbose = false;
 end 
 
 if ~exist(inputDir, 'dir')
@@ -75,10 +80,11 @@ for i = 3:length(fileList)
     % TODO: save output image
     % TODO: return statistics
     
-    I_rec = inpaint_criminisi(imagePath, maskPath);
+    I_rec = inpaint_criminisi(imagePath, maskPath, verbose);
     I_rec = uint8(I_rec);
     
     % Save image to output dir.
     outPath = fullfile(outputDir, [imageName OUT_SUFFIX imageExt]);
     imwrite(I_rec, outPath);
+    copyfile(maskPath, fullfile(outputDir, [imageName MASK_SUFFIX imageExt]));
 end
