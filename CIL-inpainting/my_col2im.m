@@ -30,6 +30,10 @@ if numel(overlap)==1
     overlap = [overlap, overlap];
 end
 
+if (all(overlap)==0)
+    blend = false;
+end
+
 % if size(X,1) ~= prod(n)
 %     error('Patch size does not match the input X');
 % end

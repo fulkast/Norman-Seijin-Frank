@@ -1,0 +1,20 @@
+REAME
+-----
+
+30.5.2015
+NJU
+
+Credits:
+- Available code has been written by Sooraj Bhat, see README_bhat.
+- I found the code here: http://www.csee.wvu.edu/~xinl/demo/inpainting.html
+  (Code not written by Bhat was removed)
+
+Run
+- Open matlab, change current directory
+- Create the mex code by running
+      mex bestexemplarhelper.c
+- To test inpainting:
+      [i1,i2,i3,c,d,mov] = inpaint('bungee0.png','bungee1.png',[0 255 0]);
+      plotall;
+      close all;
+      movie(mov);
