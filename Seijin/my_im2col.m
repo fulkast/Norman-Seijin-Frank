@@ -22,7 +22,8 @@ d=patch-ovlp;%ovlp<=patch/2
 D=patch;
 n1new=(ceil((size(I,1)+shift(1))/d))*d;
 n2new=(ceil((size(I,2)+shift(2))/d))*d;
-Inew=-0.01*ones(n1new+ovlp,n2new+ovlp,size(I,3));
+% Inew=-0.01*ones(n1new+ovlp,n2new+ovlp,size(I,3));
+Inew=zeros(n1new+ovlp,n2new+ovlp,size(I,3));
 Inew(shift(1)+1+ovlp/2:shift(1)+n1+ovlp/2,shift(2)+1+ovlp/2:shift(2)+n2+ovlp/2,:)=I(:,:,:);
 X=zeros(size(I,3)*D*D,n2new*n1new/d^2);
 for i=1:n1new/d
