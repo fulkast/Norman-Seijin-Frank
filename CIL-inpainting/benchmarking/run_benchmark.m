@@ -92,6 +92,9 @@ for i = 3:length(fileList)
     if ~useSingleMask
         maskPath = fullfile(inputDir, [imageName MASK_SUFFIX imageExt]);
     end
+    if maskType == 1
+        maskPath = '.'; % Dummy
+    end
     
     % Skip file if...
     %   - mask does not exist for this file
