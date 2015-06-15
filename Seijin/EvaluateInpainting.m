@@ -1,7 +1,7 @@
 % Measure approximation error and compression ratio for several images.
 %
 % NOTE Images must be have .png ending and reside in the same folder.
-dataDir = 'dataPics';
+dataDir = 'dataPic';
 file_list = dir(dataDir); 
 k = 1;
 siz=512;
@@ -59,11 +59,13 @@ for i = 3:length(file_list) % running through the folder
 mask=im2double(mask);
 %imshow(I_mask)
     % Call the main inPainting function
+    
     tic
    I_rec = inPainting(I_mask, mask);
    toc
-   figure
+      figure
    imshow(I_rec);
+
     % Measure approximation error
     Errors(k) = mean(mean(mean( ((I - I_rec) ).^2)));
     fprintf('error= %s  \n',Errors(k));
