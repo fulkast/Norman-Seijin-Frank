@@ -10,7 +10,7 @@ function I_rec = inPainting(I, mask, settings)
 
 %% Parameters
 overlap=8;      % even, less or equal to half the size of neib
-rc_min = 0.01;  % rc_min: minimal residual correlation before stopping
+rc_min = 0.1;  % rc_min: minimal residual correlation before stopping
 neib = 16;      % neib: The patch sizes used in the decomposition of the image
 sigma = 0.01;   % sigma: residual error stopping criterion, normalized by signal norm
 verbose = true; %

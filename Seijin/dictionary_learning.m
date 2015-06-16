@@ -21,15 +21,15 @@ function [U,Z,U_new] = dictionary_learning(X,Isize)
 patch=sqrt(d);
 l = d;%(should be a carree)
 Usize=[sqrt(d*l) sqrt(d*l)];
-l = 2*d;
-Usize=[d l];
+%l = d;
+%Usize=[d l];
 sigma = 0.3;
 %sigma=0.01;
 rate=0.7;
 rc_min = 0.01;
 % iter_num = 20;
 iter_num = 15;
-init_mode = 'recover';
+init_mode = 'kmean';
 ovlp=0;
 
 %% Initialization of Dictionary
