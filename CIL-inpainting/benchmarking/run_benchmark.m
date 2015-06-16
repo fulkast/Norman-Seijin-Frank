@@ -23,6 +23,7 @@ pathToMask = '';
 verbose = true;
 runCriminisi = false;
 runBIG = true;
+runBIA = true;
 runRef = true;
 
 % Mask type
@@ -50,7 +51,8 @@ MASK_SUFFIX = '_mask';
 
 % Method suffixes.
 CRIM_SUFFIX = '_crim';
-BIG_SUFFIX = '_big';
+BIG_SUFFIX = '_big';    % BIG overlap blending
+BIA_SUFFIX = '_bia';    % advanced blending (with confidence voting)
 REF_SUFFIX = '_ref';
 
 % Mask suffix.
@@ -162,6 +164,7 @@ for i = 3:length(fileList)
     settings.neib = 16;         % neib: The patch sizes used in the decomposition of the image
     settings.sigma = 0.01;      % sigma: residual error stopping criterion, normalized by signal norm
     settings.verbose = verbose; %
+    settings.advancedBlend = false;
     
     if runBIG
         starttime = cputime;
@@ -170,6 +173,21 @@ for i = 3:length(fileList)
 
         % Save images to output dir.
         outPath = fullfile(outputDir, [imageName MASK_SUFFIX BIG_SUFFIX imageExt]);
+        imwrite(I_rec, outPath);
+        outPath = fullfile(outputDir, [imageName MASK_SUFFIX IN_SUFFIX imageExt]);
+        imwrite(I_mask, outPath);
+    end
+    
+    if runBIA
+        % Enable advance blending.
+        settings.advancedBlend = false;
+        
+        starttime = cputime;
+        I_rec = inPainting(I_mask, mask, settings);
+        info.runtimeBIG = cputime - starttime;
+
+        % Save images to output dir.
+        outPath = fullfile(outputDir, [imageName MASK_SUFFIX BIA_SUFFIX imageExt]);
         imwrite(I_rec, outPath);
         outPath = fullfile(outputDir, [imageName MASK_SUFFIX IN_SUFFIX imageExt]);
         imwrite(I_mask, outPath);
