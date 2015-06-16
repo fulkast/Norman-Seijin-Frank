@@ -61,7 +61,7 @@ for i = 3:length(file_list) % running through the folder
 end
 
 X=my_im2col(IM,16,0,[0 0]);
-save('DATA.mat','X');
+% save('DATA.mat','X');
 % Y=X;
 % Y(1,:)=0.*Y(1,:);
 % imshow((my_col2im(Y,16,size(IM),0,[0 0]))  );
