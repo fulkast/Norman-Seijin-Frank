@@ -14,10 +14,8 @@ try
     U = temp.U;
 catch
     % Input the alternative here
-    % V1=haarTrans(dim);
-    V2=overDCTdict(dim,floor(dim));
-    V3=buildGaborDict(16);
-    U=[V3];%,V1];
+    V=overDCTdict(dim,floor(dim));
+    U=[V];
 end
 
    

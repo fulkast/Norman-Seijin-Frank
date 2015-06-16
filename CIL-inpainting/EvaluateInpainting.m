@@ -13,7 +13,7 @@ maskPepperness = 0.7;
 showResults = true;
 
 outDir = 'output';
-saveResults = true;
+saveResults = false;
 
 %% Setup
 fileList = dir(dataDir); 
