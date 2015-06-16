@@ -14,6 +14,7 @@ try
     U = temp.U;
 catch
     % Input the alternative here
+    warning('Building new default dictionary. Is that really okay???')
     V=overDCTdict(dim,floor(dim));
     U=[V];
 end
