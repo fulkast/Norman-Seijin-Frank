@@ -63,6 +63,7 @@ else
     % figure(4); imshow(I_rec_3);
     % figure(5); imshow(I_rec_4);
     [I_rec, stats] = patch_selector(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
+    %[I_rec, stats] = patch_selector2(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
     if verbose
         fprintf('Average number of patches used for blending %g\n', stats.avg_nop);
     end
