@@ -19,6 +19,7 @@ pj = patch(2);
 
 % Extract boundary of mask.
 dM = conv2(double(mask),[1,1,1;1,-8,1;1,1,1],'same');
+
 dM(dM>0) = 1;
 dM(dM<0) = 0;
 
@@ -34,7 +35,7 @@ cI2 = dM.*cI2;
 cI3 = dM.*cI3;
 cI4 = dM.*cI4;
 
-maxConf = [max(cI1(:)), max(cI2(:)), max(cI3(:)), max(cI4(:))];
+%maxConf = [max(cI1(:)), max(cI2(:)), max(cI3(:)), max(cI4(:))];
 
 % Allocate I_rec, without setting values (faster)
 I_rec(size(mask,1), size(mask,2)) = 0;
