@@ -102,7 +102,8 @@ subplot(2,1,2)
     colorbar
 subplot(2,1,1)
 %1)
-    plot(max(Z,[],2),'b.','MarkerSize',20); xlabel('Atom');ylabel('Maximum Coefficient');title('Performance of Atoms')        % Shows the maximum coefficient of an atom to any and all of the patches 
+imshow(DictionaryPlot(U*Z,Im_size,blocksize))
+%     plot(max(Z,[],2),'b.','MarkerSize',20); xlabel('Atom');ylabel('Maximum Coefficient');title('Performance of Atoms')        % Shows the maximum coefficient of an atom to any and all of the patches 
 %2)
 %       plot(mean(Z,2),'b.','MarkerSize',20); xlabel('Atom');ylabel('Mean Coefficient');title('Performance of Atoms')
     
@@ -112,11 +113,12 @@ subplot(2,1,1)
 %     % Displays the most popular atom
 
     
-colormap(parula);drawnow
-[y,i] = sort(mean(abs(Z),2),'descend');
-[z,j] = sort(sum(abs(residual),1));
+% colormap(parula);
+drawnow
+% [y,i] = sort(mean(abs(Z),2),'descend');
+% [z,j] = sort(sum(abs(residual),1));
 
-U(:,i(end-9:end)) = X(:,j(end-9:end));
+
 
     end
     fprintf('Run %d of %d\n',nn,n);

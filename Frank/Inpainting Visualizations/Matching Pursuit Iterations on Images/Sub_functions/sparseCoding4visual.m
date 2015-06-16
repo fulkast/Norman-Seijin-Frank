@@ -20,6 +20,7 @@ blocksize = size(X,1)^.5;
 
 Z = zeros(l,n);
 % Loop over all observations in the columns of X
+% for nn = 1:n
 for nn = 1:n
     
     % Initialize the residual with the observation x
@@ -36,18 +37,25 @@ for nn = 1:n
     % TO BE FILLED
     it = 0;
     while (norm(residual) > sigma*norm(x)) && (rc_max > rc_min)
+%         norm(residual)
+%        pause(.5)
 %         it=it+1;
         % TO BE FILLED 
         
         % Select atom with maximum absolute correlation to the residual       
           
 %           vec1 = (Uloc'*(residual));%./sqrt(sum((repmat(m,1,length(residual)).*U).^2,2));
-          
-          vec1 = (Uloc'*(residual))./exp(Z(:,nn).^2/(sum(Z(:,nn))+0.00001));
+          sig = 10000;
+%           vec1 = (Uloc'*(residual))./exp(sig*Z(:,nn).^2/(sig*sum(abs(Z(:,nn)))+0.00001));
+%           vec1 = (Uloc'*(residual))./exp(sig*Z(:,nn).^2);
+          vec1 = (Uloc'*(residual));
           vec = abs(vec1);
           
         
         [rc_max,arg] = max(vec.*isfinite(vec));
+%         rc_max
+        
+%         norm(residual)
         d = Uloc(:,arg);
         
         % Update the maximum absolute correlation
@@ -61,28 +69,22 @@ for nn = 1:n
         
        % imnew = DictionaryPlot(U*Z(:,nn),16);
        
-       ProgPlotter(nn,U,Z,X,vec,blocksize)
-%        subplot(1,3,1) 
-%         imshow(imresize(reshape(U*Z(:,nn),blocksize,blocksize),16))
-%         title('Current Progress')
-%         subplot(1,3,2) 
-%         imshow(imresize(reshape(X(:,nn),blocksize,blocksize),16))
-%         title('Actual Patch Trying to Fit')
-%         subplot(1,3,3) 
-%         plot(sort(vec))
-%         title('Coherence of Residue to Each Atom (sorted in ascending order)')
-%         xlabel('Atoms Sorted')
-%         ylabel('Coherence Value')
-%         
-        drawnow;
-    %   subplot(1,2,2)
        
+       ProgPlotter(nn,U,Z,X,vec,blocksize)
+        
+%        if (mod(nn,16)==0)
+%        imshow(DictionaryPlot(U*Z,Im_size,blocksize))
+%        drawnow;
+%        end
+        
+    %   subplot(1,2,2)
       % imshow(DictionaryPlot(U*Z,Im_size,16))
       
       it = it +1;
     end
-    
-    
+    norm(x)
+    norm(residual)
+    it
     fprintf('Run %d of %d\n',nn,n);
     % Add the calculated coefficient vector z to the overall matrix Z
 %     Z(:,nn) = z;
