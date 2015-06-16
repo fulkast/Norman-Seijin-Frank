@@ -4,10 +4,14 @@ function I_rec = my_col2im(X, patch, imSize, overlap, shift, blend)
 % toolbox.
 %
 % INPUT
-% X: (d x n) observations matrix. Obviously d=patch*patch and n is the 
-%            number of patches extracted
-% patch: The size of the square patches extracted
-% im_size: Size of the original image 
+% X:        (d x n) observations matrix. Obviously d=patch*patch and n is
+%           the number of patches extracted
+% patch:    The size of the square patches extracted
+% im_size:  Size of the original image 
+%
+% blend:    Blending enabled if > 0
+%           if 10: take only from first overlap
+%           if 20: take only from second overlap
 %
 % OUTPUT
 % I_rec: image
@@ -67,19 +71,37 @@ nNew = n.*d+overlap;
 % Allocate, but don't initialize.
 I_rec(nNew(1), nNew(2), c) = cast(0, class(X));
 
+% Prepare the blending mask.
 if blend
     B = zeros(nNew(1), nNew(2), c);
     I_rec = zeros(nNew(1), nNew(2), c);
-    blending = ones(D(1),D(2),c);
-    o1_2 = floor(overlap(1)/2);
-    o2_2 = floor(overlap(2)/2);
-    for k=1:o1_2
-        blending(:,k)        = blending(:,k)*(k-1)/o1_2;
-        blending(:,D(2)-k+1) = blending(:,D(2)-k+1)*(k-1)/o1_2;
-    end
-    for k=1:o2_2
-        blending(k,:)        = blending(k,:)*(k-1)/o2_2;
-        blending(D(1)-k+1,:) = blending(D(1)-k+1,:)*(k-1)/o2_2;
+    
+    o1 = overlap(1);
+    o2 = overlap(2);
+    o1_2 = floor(o1/2);
+    o2_2 = floor(o2/2);
+    if blend == 10
+        blending = zeros(D(1),D(2),c);
+        blending(1:o1, 1:o2) = 1;
+    elseif blend == 20
+        blending = zeros(D(1),D(2),c);
+        blending(1:o1, o2+1:end) = 1;
+    elseif blend == 30
+        blending = zeros(D(1),D(2),c);
+        blending(o1+1:end, 1:o2) = 1;
+    elseif blend == 40
+        blending = zeros(D(1),D(2),c);
+        blending(o1+1:end, o2+1:end) = 1;
+    else
+        blending = ones(D(1),D(2),c);
+        for k=1:o1_2
+            blending(:,k)        = blending(:,k)*(k-1)/o1_2;
+            blending(:,D(2)-k+1) = blending(:,D(2)-k+1)*(k-1)/o1_2;
+        end
+        for k=1:o2_2
+            blending(k,:)        = blending(k,:)*(k-1)/o2_2;
+            blending(D(1)-k+1,:) = blending(D(1)-k+1,:)*(k-1)/o2_2;
+        end
     end
 end
 
@@ -110,6 +132,10 @@ for j = 1:size(X,2)
 end
 
 if blend
+    if max(B(:)) > 1
+        disp([blend, max(B(:))])
+    end
+
     for i=1:c
         I_rec(:,:,i) = I_rec(:,:,i) ./ B;
     end

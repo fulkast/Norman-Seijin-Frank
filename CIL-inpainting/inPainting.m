@@ -14,6 +14,7 @@ rc_min = 0.1;  % rc_min: minimal residual correlation before stopping
 neib = 16;      % neib: The patch sizes used in the decomposition of the image
 sigma = 0.01;   % sigma: residual error stopping criterion, normalized by signal norm
 verbose = true; %
+advancedBlend = true;
 
 if nargin == 3
     overlap = settings.overlap;
@@ -21,6 +22,7 @@ if nargin == 3
     neib = settings.neib;
     sigma = settings.sigma;
     verbose = settings.verbose;
+    advancedBlend = settings.advancedBlend;
 end
 
 %% Go!
@@ -47,7 +49,24 @@ profiling(end+1:end+2) = {cputime-starttime, 'Sparse coding'};
 X_rec=U*Z;
 idx=find(M~=0);
 X_rec(idx)=X(idx);
-I_rec=my_col2im(X_rec,neib,[n1,n2],overlap,shift,true);
+
+if ~advancedBlend
+    I_rec=my_col2im(X_rec,neib,[n1,n2],overlap,shift,true);
+else
+    I_rec_1=my_col2im(X_rec,neib,[n1,n2],overlap,shift,10);
+    I_rec_2=my_col2im(X_rec,neib,[n1,n2],overlap,shift,20);
+    I_rec_3=my_col2im(X_rec,neib,[n1,n2],overlap,shift,30);
+    I_rec_4=my_col2im(X_rec,neib,[n1,n2],overlap,shift,40);
+    % figure(1); imshow(I_rec);
+    % figure(2); imshow(I_rec_1);
+    % figure(3); imshow(I_rec_2);
+    % figure(4); imshow(I_rec_3);
+    % figure(5); imshow(I_rec_4);
+    [I_rec, stats] = patch_selector(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
+    if verbose
+        fprintf('Average number of patches used for blending %g\n', stats.avg_nop);
+    end
+end
 profiling(end+1:end+2) = {cputime-starttime, 'Reconstruct'};
 
 if verbose
