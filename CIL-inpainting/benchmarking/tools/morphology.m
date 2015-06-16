@@ -89,15 +89,20 @@ end
 
 % 4) The harder the edges along the mask borders
 M = conv2(double(mask),[1,1,1;1,-8,1;1,1,1],'same');
+M(M<0) = 0;
 M(M>0) = 1;
-M(M<1) = 0;
 Z = abs(conv2(double(I_rec),[1,1,1;1,-8,1;1,1,1],'same'));
+if false
+    figure; imshow(M)
+    return
+end
 minZ = min(Z(:)); maxZ = max(Z(:));
 Z = 1/(maxZ-minZ)*Z - minZ/(maxZ-minZ);
 Z = M.*Z;
 threshold = 0.05;
 Z(Z<threshold) = 0;
 Z(Z>=threshold) = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5) Blur the mask that will be used to get a smooth transient...
