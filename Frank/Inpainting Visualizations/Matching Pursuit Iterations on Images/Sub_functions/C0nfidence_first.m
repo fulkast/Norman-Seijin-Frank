@@ -1,18 +1,21 @@
 % This one goes incrementally from higher confidence to lower
 
 function Z = C0nfidence_first(U, X, M, sigma, rc_min, Im_size)
+blocksize = size(X,1)^.5;
+
+U1=haarTrans(blocksize*blocksize);
 
 
 l = size(U,2);
 n = size(X,2);
-blocksize = size(X,1)^.5;
-
 Z = zeros(l,n);
+
+
 % Loop over all observations in the columns of X
 
 [maskcount, order] = sort(sum(M,1),'descend');
 
-masking_quality_cutoff = .6;
+masking_quality_cutoff = 0;
 
 seq = order;
 seq(maskcount/blocksize/blocksize >= masking_quality_cutoff) = [];
@@ -31,7 +34,7 @@ for nn = order
     rc_max = max((Uloc'*residual).^2);
     % TO BE FILLED
     it = 0;
-
+% if nn == 1023 NeighbourImprovement_check(M(:,nn),X(:,nn),16);pause; end
     while (norm(residual) > sigma*norm(x)) && (rc_max > rc_min)
 
 
@@ -48,13 +51,23 @@ for nn = order
 
     end
     
-    X(:,nn) = U*Z(:,nn);
-    [X,M,seq] = stencil(X,M,U,nn,blocksize,Im_size,seq,masking_quality_cutoff,sigma,rc_min);
+%     X(:,nn) = U*Z(:,nn);
+    
+%     imshow(DictionaryPlot(X,[32 32],16)) ; ...pause;
     M(:,nn) = ones(blocksize*blocksize,1);
+    X(:,nn) = U*Z(:,nn);
+    
+    [X,M,seq] = stencil(X,M,U,nn,blocksize,Im_size,seq,masking_quality_cutoff,sigma,rc_min);
+
+    
     seq(seq==nn) = [];
-    imshow(DictionaryPlot(X,[32 32],16))
-   
+%     subplot(1,2,1)
+%     imshow(DictionaryPlot(X,[32 32],16))
+%     drawnow;
+%     subplot(1,2,2)
+%    imshow(imresize(reshape(X(:,nn),16,16),32));pause
 %     fprintf('Took %d iterations\n',it);
+%     seq = order;
 end
 
 

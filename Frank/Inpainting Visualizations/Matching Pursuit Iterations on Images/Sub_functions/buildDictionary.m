@@ -12,10 +12,13 @@ function U = buildDictionary(dim , DCT)
 
 try 
     if ~DCT
-    temp = load('dictionary.mat');
+%     temp = load('dictionary.mat');
+    
+    temp = load('ProjectedKmean3pic64atom.mat');
     U = temp.U;
-%     V1=overDCTdict(dim,floor(dim));
-%     U = [U, V1];
+    V1=overDCTdict(dim,floor(dim));
+%     V2=haarTrans(dim);
+    U = [U V1];
     display('Custom Dictionary Utilized');
     else
     temp = load('nullptr.mat');
@@ -24,8 +27,8 @@ try
     
 catch
     % Input the alternative here
-   V1=haarTrans(dim); outtext = 'Haar Used';
-%     V1=overDCTdict(dim,floor(dim)); outtext = 'DCT Used' ;
+%    V2=haarTrans(dim); outtext = 'Haar Used';
+    V1=overDCTdict(dim,floor(dim)); outtext = 'DCT Used' ;
     U=[V1];%,V1];
     fprintf('%s\n',outtext);
 end

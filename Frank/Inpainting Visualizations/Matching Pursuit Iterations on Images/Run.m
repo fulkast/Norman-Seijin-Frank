@@ -8,18 +8,20 @@ ImageFolder = '\Image_Sources\';
 DictionaryFolder = '\Dictionaries\';
 HelperFunctionsFolder = '\Sub_functions\';
 CurrentDir = pwd();
+k = 1;
 
+Errors = []; % mean squared errors for each image would be stored here
 % Get all the Image related files
 img_file_list = dir(strcat(CurrentDir,ImageFolder));
-
+ 
 % Add extra functions and files to current directory
 addpath(strcat(CurrentDir,ImageFolder))
 addpath(strcat(CurrentDir,HelperFunctionsFolder))
 addpath(strcat(CurrentDir,DictionaryFolder))
 %% Parameters are inserted here
 d = 16; %block size
-sigma = 0.01; %stopping criterion for sparsecoding
-rc_min = 0.01; %stopping criterion for sparsecoding
+sigma = 0.005; %stopping criterion for sparsecoding
+rc_min = 0.03; %stopping criterion for sparsecoding
  
 %%
 for i = 3:length(img_file_list) % runing through the folder
@@ -36,24 +38,48 @@ for i = 3:length(img_file_list) % runing through the folder
         continue;
     end
     mask_name = [file_name(1:end-4) '_mask.png'];
-        
+          
     % Read image, convert to double precision and map to [0,1] interval
     I = imread(file_name); 
     I = double(I) / 255;     
     
+    mask=ones(size(I));
+    mask = imread(mask_name);
+    mask=mask./255;
+    mask=mask(:,:,1);
+    
+    mask=ones(size(I));
+    for i=1:size(mask,1)*size(mask,2)/1.01
+        a=floor(rand(1)*size(mask,1)+1);
+        b=floor(rand(1)*size(mask,2)+1);
+        mask(a,b)=0;
+    end
+    
+    I_mask = I;
+    I_mask(~mask) = 0;
+    
     % Vectorize image matrix
-    [I_vec, Im_size]= extract(I,d);
+    [I_vec, Im_size]= extract(I_mask,d);
+    [I_rec, ~]= extract(I,d);
+    [mask, ~]= extract(mask,d);
     
-    % Get dictionary
+    % Get dictionary 
     
-    U = buildDictionary(d^2); 
+    U = buildDictionary(d^2,0);  %    0 second argument for CUSTOM Dictionary
+    
+%     [U1,Z, U] = dictionary_learning(I_rec,Im_size)
     
     % run modified visualization sparsecoding code
-    [Z] = sparseCoding4visual(U, I_vec, ones(size(I_vec)), sigma, rc_min, Im_size); %This file here is a bit modified
+    t =cputime;
+    [Z] = C0nfidence_first(U, I_vec, mask, sigma, rc_min, Im_size); %This file here is a bit modified
+    cputime - t
     
+    Errors(k) = mean(mean(mean( ((I_rec - U*Z) ).^2)));
     
-    
-    
-    
-    
+    k = k+1;
 end
+
+
+Result(1) = mean(Errors);
+
+disp(['Average quadratic error: ' num2str(Result(1))])
