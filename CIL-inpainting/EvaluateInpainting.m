@@ -7,13 +7,15 @@
 % maskPepperness
 %   value between 0.0 or 1.0
 
-dataDir = 'data';
+dataDir = 'data/pics';
 maskType = 0;
 maskPepperness = 0.7;
-showResults = true;
+showResults = false;
+useFixedMaskFile = true;
+fixedMaskFilePath = fullfile(dataDir, 'mask.png');
 
 outDir = 'output';
-saveResults = false;
+saveResults = true;
 
 %% Setup
 fileList = dir(dataDir); 
@@ -35,7 +37,11 @@ for i = 3:length(fileList)
     if (strcmp(filePath(end-7:end), 'mask.png'))
         continue;
     end
-    maskName = [filePath(1:end-4) '_mask.png'];
+    if useFixedMaskFile
+        maskName = fixedMaskFilePath;
+    else
+        maskName = [filePath(1:end-4) '_mask.png'];
+    end
         
     % Read image.
     fprintf('Reading file %s...\n', filePath);
@@ -92,3 +98,5 @@ end
 
 result(1) = mean(errors);
 disp(['Average quadratic error: ' num2str(result(1))])
+
+figure; hist(errors, 0:5e-4:8e-3);
