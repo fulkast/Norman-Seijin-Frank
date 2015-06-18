@@ -28,7 +28,9 @@ set(0,'DefaultAxesFontName', 'Times New Roman')
 set(0,'DefaultAxesFontSize', 14)
 
 for i=1:length(allErrors)
-    figure(1); scatter(allRuntimes{i}, allErrors{i}, 'MarkerFaceColor', colors(i));
+    figure(1);
+    hold on
+    scatter(allRuntimes{i}, allErrors{i}, 'MarkerFaceColor', colors(i));
 end
 
 grid on
