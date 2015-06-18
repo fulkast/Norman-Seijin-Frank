@@ -1,2 +1,5 @@
 build/
 build*/
+
+# Overwrite root ignore for images in graphics folder
+!graphics/*
