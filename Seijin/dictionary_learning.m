@@ -29,8 +29,18 @@ rate=0.7;
 rc_min = 0.1;
 % iter_num = 20;
 iter_num = 15;
-init_mode = 'recover';
+init_mode = 'rand';
 ovlp=0;
+project=false;
+
+
+
+if project
+     temp=load('PCAdictionary');
+     V=(temp.U);
+     Y=V(:,2:64)*V(:,2:64)'*(X-repmat((mean(X)),d,1));
+     X=Y+repmat((mean(X)),d,1);
+end
 
 %% Initialization of Dictionary
 
@@ -55,11 +65,19 @@ elseif strcmp(init_mode, 'dct')
 elseif strcmp(init_mode, 'kmean')
     %if first coord neg, inverse the vector!
     Y=normc(X-repmat((mean(X)),d,1));
-    id=find(Y(1,:)<0);
-    Y(:,id)=-Y(:,id);
-    [foo,foo,U,foo]= k_means(Y,l);
-        U(:,1) = ones(d,1)/d;
-    U = normc(U);
+%     id=find(Y(1,:)<0);
+%     Y(:,id)=-Y(:,id);
+     [foo,z] = Kopt(Y,l-1,l-1,25,10,'MonteCarlo');
+     Zz = zeros(l-1, n);
+     for i=1:n
+         Zz(z(1,i),i)=1;
+     end
+    U = Y*Zz';
+    U = U./repmat(sum(Zz,2)'+0.01,d,1);
+    V = ones(d,l);
+    V(:,2:l)=U(:,:);
+    U = normc(V);
+
 elseif strcmp(init_mode, 'recover')
     t=load('dictionary.mat');
     U=t.U;

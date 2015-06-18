@@ -1,13 +1,13 @@
 % Measure approximation error and compression ratio for several images.
 %
 % NOTE Images must be have .png ending and reside in the same folder.
-dataDir = 'dataPic';
+dataDir = 'Test set';
 file_list = dir(dataDir); 
 k = 1;
 siz=512;
 Errors = []; % mean squared errors for each image would be stored here
 
-
+tic
 for i = 3:length(file_list) % running through the folder
     
     file_name = fullfile(dataDir, file_list(i).name); % get current filename
@@ -63,7 +63,7 @@ mask=im2double(mask);
     tic
    I_rec = inPainting(I_mask, mask);
    toc
-      figure
+   %   figure
    imshow(I_rec);
 
     % Measure approximation error
@@ -72,7 +72,7 @@ mask=im2double(mask);
     k = k+1;
    % break;
 end
-
+toc
 Result(1) = mean(Errors);
 
 disp(['Average quadratic error: ' num2str(Result(1))])
