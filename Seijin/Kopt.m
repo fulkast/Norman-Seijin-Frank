@@ -1,7 +1,7 @@
-function [Kopt,z] = PredictMissingValues(X,Kmin,Kmax,maxIter,T,method) %monte carlo very good
+function [Kopt,z] = Kopt(X,Kmin,Kmax,maxIter,T,method) %monte carlo very good
 %Now apply k-means
 iter=maxIter;
-eps=0.001;
+eps=0.01;
 varargin=cell(2,1);
 varargin{1}='maxiter';
 varargin{2}=iter;
@@ -17,7 +17,7 @@ for k=Kmin:Kmax
     Zt=zeros(T,N);
     Ztk=zeros(T,k);
     for t=1:T
-        [z,Z]=gmm(X, k,varargin{:});
+        [z,Z]=k_means(X, k,varargin{:});
         Zt(t,:)=z(:);
         Ztk(t,:)=sum(Z,2);
     end
