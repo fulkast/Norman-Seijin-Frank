@@ -7,12 +7,19 @@
 % maskPepperness
 %   value between 0.0 or 1.0
 
-dataDir = 'data/pics';
+dataDir = 'data/selection';
 maskType = 0;
 maskPepperness = 0.7;
 showResults = false;
+
 useFixedMaskFile = true;
 fixedMaskFilePath = fullfile(dataDir, 'mask.png');
+
+% !!!WARNING!!! If useSpecialDictionary==true, the existing
+% dictionary.mat will be overwritten!!!
+useSpecialDictionary = true;
+dictionaryFilePath = 'projectedKmeanHS16pics.mat';  
+dictionarySuffix = 'projectedKmeanHS16pics';
 
 outDir = 'output';
 saveResults = true;
@@ -27,6 +34,15 @@ count = 1;
 % Control random number generator (in case it is used).
 rng('default');
 rng(1);
+
+% Copy dictionary to dictionary.mat
+if useSpecialDictionary
+    targetDictionary = 'dictionary.mat';
+    if exist(dictionaryFilePath, 'file') && ~isequal(dictionaryFilePath, targetDictionary)
+        fprintf('Copying dictionary %s to %s\n', dictionaryFilePath, targetDictionary);
+        copyfile(dictionaryFilePath, targetDictionary, 'f');
+    end
+end
 
 %% Loop over data dir
 for i = 3:length(fileList) 
@@ -73,6 +89,7 @@ for i = 3:length(fileList)
     % In-painting.
     [I_rec, stats] = inPainting(I_mask, mask);
     runtime(count) = stats.runtime;
+    sparsity(count) = stats.sparsity;
     
     if saveResults
         if ~exist(outDir, 'dir')
@@ -100,5 +117,4 @@ end
 result(1) = mean(errors);
 disp(['Average quadratic error: ' num2str(result(1))])
 
-figure; hist(errors, 0:5e-4:8e-3);
-figure; scatter(errors, runtime);
+save(fullfile(outDir, ['stats_', dictionarySuffix, '.mat']), 'errors', 'runtime', 'sparsity');
