@@ -1,4 +1,4 @@
-function I_rec = inPainting(I, mask, settings)
+function [I_rec, stats] = inPainting(I, mask, settings)
 % Perform the actual inpainting of the image
 
 % INPUT
@@ -43,6 +43,7 @@ profiling(end+1:end+2) = {cputime-starttime, 'Extract patches'};
 
 % Sparse coding for the known (unmasked) parts of the image.
 Z = sparseCoding(U, X, M, sigma, rc_min);
+stats.sparsity = numel(Z(Z==0))/numel(Z);
 profiling(end+1:end+2) = {cputime-starttime, 'Sparse coding'};
 
 % Reconstruct the missing pixels using the sparse coding.
@@ -68,7 +69,12 @@ else
         fprintf('Average number of patches used for blending %g\n', stats.avg_nop);
     end
 end
-profiling(end+1:end+2) = {cputime-starttime, 'Reconstruct'};
+
+runtime = cputime-starttime;
+profiling(end+1:end+2) = {runtime , 'Reconstruct'};
+
+stats.profiling = profiling;
+stats.runtime = runtime;
 
 if verbose
     fprintf('Profiling:\n');
