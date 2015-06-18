@@ -7,13 +7,15 @@
 % maskPepperness
 %   value between 0.0 or 1.0
 
-dataDir = 'data';
+dataDir = 'data/pics';
 maskType = 0;
 maskPepperness = 0.7;
-showResults = true;
+showResults = false;
+useFixedMaskFile = true;
+fixedMaskFilePath = fullfile(dataDir, 'mask.png');
 
 outDir = 'output';
-saveResults = false;
+saveResults = true;
 
 %% Setup
 fileList = dir(dataDir); 
@@ -21,19 +23,25 @@ fileList = dir(dataDir);
 % Mean squared errors.
 errors = []; 
 count = 1;
-siz=512;
+
 % Control random number generator (in case it is used).
 rng('default');
 rng(1);
-tic
+
 %% Loop over data dir
 for i = 3:length(fileList) 
     
     % Input image and mask.
     fileName = fileList(i).name;
     filePath = fullfile(dataDir, fileName);
-
-    maskName = ['mask.png'];
+    if (strcmp(filePath(end-7:end), 'mask.png'))
+        continue;
+    end
+    if useFixedMaskFile
+        maskName = fixedMaskFilePath;
+    else
+        maskName = [filePath(1:end-4) '_mask.png'];
+    end
         
     % Read image.
     fprintf('Reading file %s...\n', filePath);
@@ -47,17 +55,7 @@ for i = 3:length(fileList)
     end
     
     % Convert to double precision and map to [0,1] interval.
-     I = double(I) / 255; 
-    [a,b,c]=size(I);
-    if (ceil(siz/min(a,b))>1)
-        continue
-        I=expand(I,ceil(siz/min(a,b)));
-    elseif (floor(min(a,b)/siz)>1)
-        I=compress(I,floor(min(a,b)/siz));
-    end
-    n1=floor(size(I,1)/2);
-    n2=floor(size(I,2)/2);
-    I=I(n1-siz/2+1:n1+siz/2,n2-siz/2+1:n2+siz/2,1);
+    I = double(I) / 255; 
     
     % Read mask.
     switch maskType
@@ -67,7 +65,7 @@ for i = 3:length(fileList)
             mask = random_mask(size(I), maskPepperness);
     end
     mask=im2double(mask);
-    I=I(1:512,1:512,1);
+    
     % Apply mask.
     I_mask = I;
     I_mask(~mask) = 0;
@@ -94,10 +92,11 @@ for i = 3:length(fileList)
         imshow(I_mask);
         figure(2)
         imshow(I_rec);
-%         pause
+        pause
     end
 end
 
 result(1) = mean(errors);
 disp(['Average quadratic error: ' num2str(result(1))])
-toc
+
+figure; hist(errors, 0:5e-4:8e-3);
