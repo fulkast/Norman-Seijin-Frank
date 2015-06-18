@@ -12,12 +12,12 @@ function U = buildDictionary(dim , DCT)
 
 try 
     if ~DCT
-    temp = load('dictionary.mat');
+%     temp = load('dictionary.mat');
     
-%     temp = load('ProjectedKmean3pic64atom.mat');
+    temp = load('kmean36pic64atom.mat');
     U = temp.U;
-    V1=overDCTdict(dim,floor(dim));
-    V2=haarTrans(dim);
+%     V1=overDCTdict(dim,floor(dim));
+    V1=haarTrans(dim);
     U = [U V1];
     display('Custom Dictionary Utilized');
     else
