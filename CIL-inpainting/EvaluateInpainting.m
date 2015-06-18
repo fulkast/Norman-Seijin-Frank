@@ -71,7 +71,8 @@ for i = 3:length(fileList)
     I_mask(~mask) = 0;
     
     % In-painting.
-    I_rec = inPainting(I_mask, mask);
+    [I_rec, stats] = inPainting(I_mask, mask);
+    runtime(count) = stats.runtime;
     
     if saveResults
         if ~exist(outDir, 'dir')
@@ -95,8 +96,9 @@ for i = 3:length(fileList)
         pause
     end
 end
-
+%%
 result(1) = mean(errors);
 disp(['Average quadratic error: ' num2str(result(1))])
 
 figure; hist(errors, 0:5e-4:8e-3);
+figure; scatter(errors, runtime);
