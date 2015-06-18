@@ -83,9 +83,9 @@ for i = 3:length(fileList)
     
     if showResults
         figure(1)
-        imshow(I_rec);
-        figure(2)
         imshow(I_mask);
+        figure(2)
+        imshow(I_rec);
         pause
     end
 end
