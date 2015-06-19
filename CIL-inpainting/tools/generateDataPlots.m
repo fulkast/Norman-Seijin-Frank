@@ -1,8 +1,8 @@
 close all
 clear
 
-dataDir = '../output';
-outputDir = '../output/figures';
+dataDir = '../output/Dictionary efficiency';
+outputDir = [dataDir,'/figures'];
 
 fileList = dir([dataDir, '/*.mat']); 
 
@@ -37,19 +37,30 @@ set(0,'DefaultAxesFontSize', 14)
 for i=1:length(allErrors)
     figure(1);
     hold on
-    scatter(allRuntimes{i}, allErrors{i}, 'MarkerFaceColor', colors(i));
+    scatter(allRuntimes{i}, allErrors{i}, 'MarkerFaceColor', colors(i),'MarkerEdgeColor','k');
     legend(legendname)
 end
 
+for i=1:length(allErrors)
+    figure(1);
+    linespec=['-','.',colors(i)];
+    hold on
+    errorbar(mean(allRuntimes{i}), mean(allErrors{i}), std(allErrors{i}) ,linespec, 'LineWidth',2);
+    figure(1);
+    hold on
+    herrorbar(mean(allRuntimes{i}), mean(allErrors{i}), std(allRuntimes{i}) ,linespec);
+end
+
 grid on
-xlabel('Avg. quadratic Error');
+xlabel('Runtime (s)');
 yl = ylim(gca);
 xl = xlim(gca);
 xlim([0, xl(2)]);
 %y = ylabel('Runtime (s)', 'fontsize', fontsize, 'rot', 0);
 %set(y, 'position', [-0.22,yl(2)+0.0001]);
-y = ylabel('Runtime (s)');
-title('Speed ')
+y = ylabel('Avg. quadratic Error');
+axis([0 100 -0.002 0.01]);
+title(dataDir(11:end))
 
 %set(gca,'FontSize',fontsize)
 %set(findall(gcf,'type','text'),'FontSize', fontsize)
