@@ -11,6 +11,10 @@ for i=1:length(fileList)
     allErrors(i) = {errors};
     allRuntimes(i) = {runtime};
     allSparsities(i) = {sparsity};
+
+    % Name for the legend
+    legendfullname = fileList(i).name;
+    legendname(i) = {legendfullname(1:end-4)};
 end
 
 if ~exist(outputDir, 'dir')
@@ -31,6 +35,7 @@ for i=1:length(allErrors)
     figure(1);
     hold on
     scatter(allRuntimes{i}, allErrors{i}, 'MarkerFaceColor', colors(i));
+    legend(legendname)
 end
 
 grid on
