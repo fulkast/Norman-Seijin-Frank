@@ -1,10 +1,34 @@
-\section{Methods (The Structure of a Paper)}
+\section{Methods}
 \label{sec:methods}
-\label{sec:structure-paper}
 
 In general the inpainting problem can be seen as a Maximum Likelihood Estimation (MLE) problem where the objective is to fill the missing pixels with most likely values, given the observed data. We represent the known values of the image through sparse encoding and during the process, infer pixel values at the locations of the unknown pixels, using the characteristics of the encoding basis. Popular bases include Discrete Fourier Transforms (DCT), Haar wavelets etc. which demonstrate favorable qualities for image encoding as they exhibit characteristics similar to generic image features. To achieve the sparse encoding we use the matching pursuit algorithm which serves to meet the following criterion (insert equation line 36 lecture 9).
 
-Inpainting through sparse coding relies on infering unknown values based on the impact the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images.
+Inpainting through sparse coding relies on inferring unknown values based on the impact the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images.
+
+In the following, we present our proposed method which consists of three components that extend the aforementioned basic approach: First, we discuss the technique that we applied to train dictionaries. Secondly, we introduce valuable information propagation (VIP) and confidence blending (CB), two different techniques that aim at improving the results by increasing the support when inferring the missing pixels.
+
+\subsection{Confidence Blending}
+Inpainting by means of sparse coding operates on image patches, that is, the missing pixels are filled patch by patch. To introduce redundancy, we suggest that these image patches overlap by a certain degree. This way, it is possible to combine suggestions for missing pixels from different patches. Consider for example patches of size $p\times p$ that overlap each other by $o=1-p/f$, $f=2$. Then every pixel of the input image (except for those within the border of width $o$) will be covered by 4 patches. This situation is depicted in figure [TODO REF]. Hence, the reconstruction is 4-way redundant. Higher redundancy can be achieved for higher $f$, but this comes at a higher computational cost since the number of patches increases quadratically in $f$. Note that the overlapping regions are of size $p/f$, we call them \textit{patchlets}.
+
+We refer to \textit{blending} when patches are combined. The simplest way of blending is to calculate a weighted average of the patchlets $p_i, i\in\{1,2,3,4\}$ with a fixed weigh $w_i$: $p=\sum_i w_i \odot p_i/\sum_i w_i$ (where $\odot$ denotes the pixel-wise multiplication of patch-sized matrices). Our experiments show the that this has a very beneficial effect on the visually perceived result because small artifacts are evened out.
+
+In our method, we opted for a dynamic weighing that aims, before anything, at improving the overall visual perception. 
+The human visual system in general is very sensitive to discontinuities (cracks). Hence, it is preferable to avoid a reconstruction that exhibits strong gradients in luminosity at the border of an inpainted area.\footnote{Of course, it may happen that edges in the image coincide with a mask boundary. But the chance that these correlate with the boundary of typical masks is in general small.}
+
+This motivates our \textit{confidence blending} (CB) method, which operates with weights that take into account the luminosity gradients across mask borders. The weights are calculated in the following way. If $M$ denotes the mask, $\partial M$ the boundary of the mask and $I_R$ the reconstructed image, then a confidence $c(j) \in [0,1]$ can be calculated for every pixel $j\in \partial M$:
+\begin{align*}
+c_1(j) &= 1-\kappa|\nabla M \cdot \nabla I_R|\\
+c_2(j) &= 1-\kappa ||\nabla I_R||_2\\
+i &\in \partial M
+\end{align*}
+The confidence $c_1$ expresses how strongly the image gradients on $\partial M$ correlate with the mask borders. Low values of $c_1$ indicate that the mask boundary coincides with an edge found in the reconstructed image. Note that $\kappa$ is used to scale the gradient expression such that it maps to the range $[0,1]$. $c_2$ is a simpler confidence measure that ignores the gradient directions. For the sake of speed, our implementation\footnote{This is justified by the fact that $c_1$ does not yield much better results.} uses $c_2$.
+
+Next, these point-wise confidence observations along $\partial M$ can be assembled into a weight $W$. A convolution with a Gaussian kernel\footnote{Our implementation uses kernel size $k=3$ and $\sigma=1$} helps to spread the information from the border to the inner of the mask. Pixels outside the mask are ignored.
+
+Repeating this for the $f^2$ reconstructed images $I_{R_i}$ yields masks $W_i$, with which weighted blending can be performed as already done for the simple scheme.
+
+Blending improves the perceived quality because the support is increased for the filled in pixels: every patch covers a different part of the image.
+
 
 
 \subsection{Dictionary learning}
