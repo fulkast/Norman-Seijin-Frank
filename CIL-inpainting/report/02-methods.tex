@@ -2,6 +2,9 @@
 \label{sec:methods}
 \label{sec:structure-paper}
 
+In general the inpainting problem can be seen as a Maximum Likelihood Estimation (MLE) problem where the objective is to fill the missing pixels with most likely values, given the observed data. We represent the known values of the image through sparse encoding and during the process, infer pixel values at the locations of the unknown pixels, using the characteristics of the encoding basis. Popular bases include Discrete Fourier Transforms (DCT), Haar wavelets etc. which demonstrate favorable qualities for image encoding as they exhibit characteristics similar to generic image features. To achieve the sparse encoding we use the matching pursuit algorithm which serves to meet the following criterion (insert equation line 36 lecture 9).
+
+Inpainting through sparse coding relies on infering unknown values based on the impact the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images.
 
 
 \subsection{Dictionary learning}
