@@ -1,3 +1,6 @@
+close all
+clear
+
 dataDir = '../output';
 outputDir = '../output/figures';
 
