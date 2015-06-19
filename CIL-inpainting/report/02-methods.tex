@@ -2,6 +2,64 @@
 \label{sec:methods}
 \label{sec:structure-paper}
 
+
+
+\subsection{Dictionary learning}
+
+Another direction in which we investigated is the construction of the dictionary we would use for our sparse coding. The nature of a dictionary not only determines the quality of the inpainting result, but also the speed of the inpainting process, depending on the size of the dictionary as well as the degree of sparseness reachable with it. 
+The choice of dictionary was particularly of interest in our case to improve the running time. The approach we adopted for the reconstruction of the image would a priori assure a good quality of the reconstruction, however on the expense of the time necessary for the reconstruction, hence the need of a dictionary which would limit this trade-off without affecting too much the improved quality of the reconstruction.
+With this objective in mind, we built a under-complete dictionary on the space of patches of size 16x16, composed of 64 atoms (25 percent of the total dimension), by applying the approximate K-SVD algorithm on a training data customized for our need. We also paid particular attention to the initialization of the learning process, since this method is known to be initialization-sensitive [TODO REF]. In the rest of this section we will refer to the space of patches of size 16x16 as $E$.
+
+\mypar{K-SVD algorithm}
+The algorithm takes a training set of patches $X$, and learn a dictionary $U$, starting from an initialized value of $U$ and iteratively learning to fit to $X$ in a more efficient way. 
+For all dictionaries, we used this algorithm with 15 iterations, using the same training data set.
+
+\mypar{Training Data set}
+The dictionary being under-complete, loss of information will inevitably occur. The atoms will hence need to be very efficient in reconstructing the image without losing important information. In other words, the atoms need to be able to describe characteristics of patches that have a high-variability among the kind of patches that we want to reconstruct. The aspects of patches with low-variability can be easily estimated by the mean, with a minimal loss of information. 
+To achieve this, we first gathered patches of size 16x16 extracted from 36 pictures of size 512x512, consisting of photography of cities, nature and animals. We then applied principal component analysis (PCA) on these patches to deduce the most significant subspace of $E$ of dimension 64, i.e. the subspace of $E$ that include the highest variability of value among patches of real-world photography. We then projected the whole training set as well as our learning process onto that subspace. That way, we ensure that the learned 64 atoms stay in this a priori significant subspace, without getting lost into the less-meaningful directions of $E$, allowing them to efficiently reconstruct a patch.
+
+\mypar{Initialization}
+The algorithm we chose is sensitive to the choice of the initial candidate, it optimizes it locally and greedily until no progress is possible. We implemented 2 main different ways to initialize the learning process:
+\begin{itemize}
+   \item From a known dictionary: in this method, we initialize the dictionary on a known dictionary, such as a 64-atom DCT (Discrete Cosine Transform) dictionary, or the 64 significant vectors obtained by applying PCA to the training set.  
+   \item k-means initialization: in this method, we initialize the dictionary based on the training data set. We first center and normalize the training data, after which we apply the K-means algorithm with K=64 based on the euclidean norm, and use the normalized 64 centroids as initializing atoms. To improve the robustness of the K-mean algorithm, we applied the algorithm 10 times and chose the result which had the smallest mean pairwise-distance with other clustering. 
+\end{itemize}
+A randomly-generated atom initialization have also been implemented to serve as a reference for studying the efficiency of other initialization methods. 
+
+Lastly, to compare the efficiency of the overall dictionary performance, we set the baseline reference as the standard complete DCT dictionary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 TODO: Subsection ``Background" to introduce roughly the concepts of sparse coding.
 
 TOOD: Present our method.

@@ -132,10 +132,6 @@ for j = 1:size(X,2)
 end
 
 if blend
-    if max(B(:)) > 1
-        disp([blend, max(B(:))])
-    end
-
     for i=1:c
         I_rec(:,:,i) = I_rec(:,:,i) ./ B;
     end
