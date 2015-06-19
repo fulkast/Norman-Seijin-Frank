@@ -2,6 +2,25 @@
 
 \subsection{Blending overlapping patches}
 
+
+PCA justification.:
+Moreover, we performed an additional comparison to study the effect of applying PCA to the training data set. We trained a set of 3 dictionaries with different features, then compared their performance on a common test set. The dictionaries are the following:  Project Random (Size: 254x64; Initialized: random vectors; Training set: projected on PCA subspace), Random Complete (Size: 254x254 ; Initialized: random vectors; Training set: brute), and Random Under-complete (Size: 254x64; Initialized: random vectors; training set: brute).
+The result of the comparison is shown on [FIG XX]. 
+We can make two observations:
+- First, we observe that the two 64 dimensional dictionaries yields very similar results, even though Projected Random has been constrained to stay in the PCA subspace, in opposition to Random Under-complete who could explore the whole space. A projection of the Random Under-complete dictionary on the PCA subspace shows that more than on average, the component of the atoms that belong to the subspace represents more than 99percent of its norm. This confirms a posteriori that given an under-complete dictionary size, it is effectively optimal to chose its atoms inside the PCA subspace of the kind of patches we want to represent.
+- Secondly, surprisingly, the complete dictionary performs globally poorer than the under-complete dictionaries, not only on the runtime, due to a larger dictionary size, but also on the quadratic error. By giving the option to the dictionary to represent features that are not so significant in the class of patches we want to represent, we are in effect risking to bring unwanted corrections that degrade the reconstruction. 
+This confirms in hindsight our intuition of applying PCA for a quicker, and better results.
+
+
+
+
+
+
+
+
+
+
+
 In this first method, the image is divided into fully-overlapping patches [TODO FIG 1 (PATCH OVERLAP.jpeg)]., patches on which sparse-coding is performed individually. Each missing pixel of the picture is hence treated four times by sparse-coding overall, as every pixel is covered by four overlapping patches as shown in figure 1. 
 The exchange of information over the individually-filled masks takes place at moment of the reconstruction of the whole picture from these four candidates. Since each one of the four patches filled the missing values given a different surrounding, some may be performing better than others. Hence, with a proper reconstruction method, we can take the best out of the additional information provided by overlapping.
 One intuitive idea would be to take a weighted average of the four versions. One could think of taking a uniform weight, or a gradient shift of weight from one patch to another. In our model, we opted for a case-dependent weighing that aims before anything to improve the visual perception of the quality of the inpainting. 
