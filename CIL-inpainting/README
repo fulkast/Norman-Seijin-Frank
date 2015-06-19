@@ -1,0 +1,147 @@
+INPAINTING 
+===============================================================================
+
+Authors: Norman Juchler
+         Seijin Kobayashi
+         Frank Fu Lanke
+         
+Data:    19.06.2015
+
+
+This project was developed during the Computing Intelligence Lab at ETH Zurich.
+More details about the techniques can be read in the report (see below).
+
+This document gives an overview over the folder structure and the main files.
+
+
+
+Folder structure
+===============================================================================
+
+Relevant files, in order of priority:
+--------------------------------------
+- EvaluateInpainting.m:
+         The main file to run the software and reproduce the results. 
+         Before executing, please do the following:
+            - provide a data folder with PNG images
+            - make sure to also add (at least one) mask image
+            - read through the instructions of the evaluation file and make 
+              sure to understand these
+            - then run
+            
+- inPainting.m:
+         This file contains the actual code of our method. The function solves
+         the inpainting problem for input image I and mask M. Optionally, some
+         settings can be passed by providing a struct with the following fields
+         (default values in brackets):
+               neib (16):     The patch size 
+               overlap (8):   Even, less or equal to half the size of neib
+               rc_min(0.1):   Minimal residual correlation before stopping MP
+               sigma(0.01):   Residual error, affects stopping criterion.
+               verbose(true): Print additional output
+               advancedBlend(true): Enables advanced blending of patches.
+               
+- sparseCoding.m
+         This method contains the implementation of the matching pursuit 
+         algorithm to find a sparse representation of an image patch given
+         some dictionary U. 
+         Internally, there is a switch to enable VIP (valuable information
+         propagation), an extension described in our report.
+         
+- patch_selector.m
+  patch_selection2.m
+         Methods that apply the special blending scheme, exploiting the fact
+         that our overlapping patches contain redundant information. Internally
+         a "confidence" value is estimated along the border of the mask and
+         several weighing schemes are implemented. Currently, patch_selection2
+         is disabled. The patch_selector is active if the advancedBlend setting
+         is enabled in inPainting.m.
+            
+- buildDictionary.m:
+         Build a default dictionary or load 'dictionary.mat' if found in path.
+         The file 'dictionary.mat' can also be used on the submission server.
+         
+- overDCTdict.m:
+         Create Discrete Cosine Transform dictionary. Only called, if no
+         dictionary.mat file is found in the working directory.
+         
+- my_im2col.m:
+         Transform an image into column representation where every patch 
+         appears as column. The image can be of any type (e.g. double, uint8).
+         Color images should be supported (not tested extensively). An 
+         additional parameter ovl allows to created patches that overlap each
+         other by ovl pixels. This way data redundancy is created, which is
+         later exploited by our method. 
+
+my_col2im.m:
+         Inverse function of my_im2col that allows to create an image from its
+         column representation. 
+         
+random_mask.m:
+         Creates a salt-and-pepper mask.
+         
+         
+stencil.m:
+neighbourhood_layout_up_down.m:
+check_neighbour.m:
+         Functions that implement the VIP (Valuable Information Propagation)
+         as described in the paper.
+         
+         
+         
+Additional files:
+-------------------
+tools/dictionary_learning.m:
+tools/k_means.m:
+tools/Kopt.m:
+tools/learnDico.m:
+         Scripts used to train (under-complete) dictionaries of small size.
+         
+         
+tools/generateDataPlots.m:
+         Script to generate the data plots of our report. The script assumes
+         that .mat files containing performance data in the dataDir.
+         Compare with output generated if EvaluateInpaiting is ran with option
+         saveResults == true.
+         
+report/*:
+         Files used to generate the final report.
+         
+
+Supported Platforms, Versions, Dependencies
+===============================================================================
+The code was tested on Mac and Win.
+The following Matlab versions were tested:
+      - Matlab R2014b (Mac)
+      - Matlab R2015 (Win)
+      - Matlab R2010 (Submission System)
+
+Matlab's Image Processing Toolbox is used in several places.
+For benchmarking, the code provided by Soorjay Bhat (see below) requires 
+Matlab's mex compiler.
+
+
+3rd Party Attributes
+===============================================================================
+Some code in subfolder benchmarking/criminisi2004 was written by Soorjay Bhat.
+BHAT_FILES = { bestexemplarhelper.c, inpaint_criminisi.m and plotall.m }
+See also the README files in that folder.
+
+Unfortunately, the link to the original source is not available anymore:
+         http://www.cc.gatech.edu/~sooraj/inpainting/
+We found the source code under the following link (valid as of June 2015)
+         http://www.csee.wvu.edu/~xinl/demo/inpainting.html
+See also here:
+         http://white.stanford.edu/teach/index.php/Object_Removal
+
+We did not contribute any substantial changes to the original code. We don't 
+claim that any code found in BHAT_FILES is ours.
+
+In any case, this is just supplementary material we used for comparison.
+Primary source of inspiration for our methods was the paper by Criminisi et 
+al (2004) properly cited in the paper.
+
+
+
+
+
