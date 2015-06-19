@@ -1,28 +1,48 @@
-%%
-% Input
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main execution script:
+% Please check README before running
 %
-% maskType:
-%   0: from file
-%   1: salt and pepper noise
-% maskPepperness
-%   value between 0.0 or 1.0
 
+% Path to data dir.
 dataDir = 'data/selection';
+
+% Type of mask:
+%   0: reads the mask from a file
+%   1: create salt and pepper noise
 maskType = 0;
+
+% The amount of noise added to the image.
+% Must be a value between 0 and 1.
+% Has an effect only for maskType == 0
 maskPepperness = 0.7;
+
+% Show images and pause execution.
 showResults = false;
 
+% Use fixed mask image (e.g. mask.png). This option is useful if not every
+% input images comes with its own mask.
 useFixedMaskFile = true;
+
+% Path to the fixed mask image. Use only if useFixedMaskFile == true
 fixedMaskFilePath = fullfile(dataDir, 'mask.png');
 
+% Set useSpecialDictionary if a special dictionary should be copied into
+% the working directory. The suffix will be used when the runtime
+% statistics are saved to a .mat file.
+%
 % !!!WARNING!!! If useSpecialDictionary==true, the existing
-% dictionary.mat will be overwritten!!!
+%               dictionary.mat will be overwritten!!!
 useSpecialDictionary = true;
-dictionaryFilePath = 'projectedKmeanHS16pics.mat';  
+dictionaryFilePath = 'dictionaries/projectedKmeanHS16pics.mat';  
 dictionarySuffix = 'projectedKmeanHS16pics';
 
-outDir = 'output';
+% Set true to save the resulting images and statistics to outputDir.
 saveResults = true;
+
+% Path to output directory. The folder will be created if it doesn't exist
+% yet. Existing content might be overwritten.
+outDir = 'output';
+
 
 %% Setup
 fileList = dir(dataDir); 
@@ -41,6 +61,8 @@ if useSpecialDictionary
     if exist(dictionaryFilePath, 'file') && ~isequal(dictionaryFilePath, targetDictionary)
         fprintf('Copying dictionary %s to %s\n', dictionaryFilePath, targetDictionary);
         copyfile(dictionaryFilePath, targetDictionary, 'f');
+    else
+        error('Something went wrong. Check dictionaryFilePath.')
     end
 end
 
@@ -113,8 +135,11 @@ for i = 3:length(fileList)
         pause
     end
 end
+
 %%
 result(1) = mean(errors);
 disp(['Average quadratic error: ' num2str(result(1))])
 
-save(fullfile(outDir, ['stats_', dictionarySuffix, '.mat']), 'errors', 'runtime', 'sparsity');
+if saveResults
+    save(fullfile(outDir, ['stats_', dictionarySuffix, '.mat']), 'errors', 'runtime', 'sparsity');
+end
