@@ -14,7 +14,7 @@ rc_min = 0.1;  % rc_min: minimal residual correlation before stopping
 neib = 16;      % neib: The patch sizes used in the decomposition of the image
 sigma = 0.01;   % sigma: residual error stopping criterion, normalized by signal norm
 verbose = true; %
-advancedBlend = false;
+advancedBlend = true;
 
 if nargin == 3
     overlap = settings.overlap;
@@ -63,10 +63,10 @@ else
     % figure(3); imshow(I_rec_2);
     % figure(4); imshow(I_rec_3);
     % figure(5); imshow(I_rec_4);
-    [I_rec, stats] = patch_selector(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
-    %[I_rec, stats] = patch_selector2(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
+    [I_rec, statistics] = patch_selector(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
+    %[I_rec, statistics] = patch_selector2(I_rec_1, I_rec_2, I_rec_3, I_rec_4, mask, neib);
     if verbose
-        fprintf('Average number of patches used for blending %g\n', stats.avg_nop);
+        fprintf('Average number of patches used for blending %g\n', statistics.avg_nop);
     end
 end
 
