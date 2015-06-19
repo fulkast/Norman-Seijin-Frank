@@ -1,10 +1,13 @@
 \section*{Franks's Snippets}
 Here goes Franks's text.
 
-Formulation as a sparse coding problem:
+\subsection{Formulation as a sparse coding problem:}
 
 In general the inpainting problem can be seen as a Maximum Likelihood Estimation (MLE) problem where the objective is to fill the missing pixels with most likely values, given the observed data. We represent the known values of the image through sparse enconding and during the process, infer pixel values at the locations of the unknown pixels, using the characteristics of the encoding basis. Popular bases include Discrete Cosine Transforms (DCT), Haar wavelets etc. which demonstrate favorable qualities for image encoding as they exhibit characteristics similar to generic image features. To achieve the sparse encoding we use the matching pursuit algorithm which serves to meet the following criterion (insert equation line 36 lecture 9).
 
 Inpainting through sparse coding relies on infering unknown values based on the impact that the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images. 
 
 So far in the technique mentioned, the image is divided into individual patches on which the sparse encodings are found. This approach disregards the spatial distribution of the occlusions and is hence sensitive to images where certain patches contain little known information. In (Criminisi) a method is proposed which first ranks the divided patches with a confidence criterion that favors patches with more known pixel values. Then, dense information from the boundary patches of the masked regions are propagated throughout the occluded region. Inspired by this work, we pursue here, two ways of propagating valuable image information beyond the boundaries of one patch.
+
+\subsection{Valuable Information Propagation (VIP)}
+To tackle the issue of densely populated masks, one of our approaches was to infer information from the surrounding, better known neighbours. This is done by performing inpainting on an imaginary patch which is the concatenation of the poor patch's boundaries and its corresponding neighbour. After this imaginary patch has been learned, parts of the poor neighbour's boundary missing pixels are chosen at random, and updated. This is done to propagate information known from the neighbouring patch, while also allowing the original poor patch to contribute to the final output. The proportion of the masked pixels updated during this step is controlled by a parameter \epsilon 
