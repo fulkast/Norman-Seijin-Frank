@@ -10,5 +10,37 @@ Inpainting through sparse coding relies on infering unknown values based on the 
 So far in the technique mentioned, the image is divided into individual patches on which the sparse encodings are found. This approach disregards the spatial distribution of the occlusions and is hence sensitive to images where certain patches contain little known information. In (Criminisi) a method is proposed which first ranks the divided patches with a confidence criterion that favors patches with more known pixel values. Then, dense information from the boundary patches of the masked regions are propagated throughout the occluded region. Inspired by this work, we pursue here, two ways of propagating valuable image information beyond the boundaries of one patch.
 
 \subsection{Valuable Information Propagation (VIP)}
-To tackle the issue of densely populated masks, one of our approaches was to infer information from the surrounding, better known neighbours. The patches are ranked by a confidence criterion, similar to the works of (Criminisi et al.) we employ here the proportion of known pixel values within a patch, as a quality measure. Propagating information from better to poorer patches is then done by performing inpainting on an imaginary patch which is the concatenation of the poor patch's boundaries and its corresponding better neighbour. Once this imaginary patch's pixels have been infered, parts of the poorer neighbour's boundary missing pixels are chosen at random, and updated. This step allows for the propagation of information from the better neighbouring patch, while also reserving some of the final reconstruction influence for the poorer patch itself. The proportion of the masked pixels updated during this step is controlled by a parameter \epsilon \in \left] 0,1 \right[, which controls the amount of information propagated from the neighbour. The boundary width i.e. the band of pixels that make up the boundary is also parameterized as a function of the patch size. This value determines the autonomy that a given poor pixel has over its final image reconstruction. 
+To tackle the issue of densely populated masks, one of our approaches was to infer information from the surrounding, better known neighbours. The patches are ranked by a confidence criterion, similar to the works of (Criminisi et al.) we employ here the proportion of known pixel values within a patch, as a quality measure. Propagating information from better to poorer patches is then done by performing inpainting on an imaginary patch which is the concatenation of the poor patch's boundaries and its corresponding better neighbour. Once this imaginary patch's pixels have been infered, parts of the poorer neighbour's boundary missing pixels are chosen at random, and updated. This step allows for the propagation of information from the better neighbouring patch, while also reserving some of the final reconstruction influence for the poorer patch itself. The proportion of the masked pixels updated during this step is controlled by a parameter \epsilon \in \left] 0,1 \right[, which controls the amount of information propagated from the neighbour. The boundary width i.e. the band of pixels that make up the boundary is also parameterized as a function of the patch size. This value determines the autonomy that a given poor pixel has over its final image reconstruction. The algorithm works as follows
 
+   \usepackage{algorithmicx}
+    \usepackage[ruled]{algorithm}
+    \usepackage[noend]{algpseudocode}
+
+\vspace{-0.2cm}%
+\alglanguage{pseudocode}
+\begin{algorithm}[h]
+\small
+\caption{Valuable Information Propagation}
+\label{Algorithm:VIP}
+\begin{algorithmic}[1]
+\Create{$\mathbf{Descending patch quality order}$}{vector $Rank$}
+  %%  \LineComment{\emph{Quick check if $x$ is in mCBF}}
+    \For {$i = 1 \to length(Rank)$}
+            %%\If {$mCBF.C_{f_i(x)\%N}$ == 0}
+                %%\State \textbf{return}
+            %%\EndIf
+	SparseCoding of patch $i$
+	update mask vector in  \mathbf{M} and image vector in  \mathbf{X} corresponding to patch i
+	
+	    \For {$j = 1 \to #Neighbours$}
+		\If {$#Masked values_j}$ >= \mathbf{threshold}}
+               	 \State {Perform information propagation from i to j}
+			update mask and pixel values of j
+	            \EndIf
+	    \EndFor
+    \EndFor
+    
+\Statex
+\end{algorithmic}
+  \vspace{-0.4cm}%
+\end{algorithm}
