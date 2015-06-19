@@ -10,7 +10,7 @@ function U = buildDictionary(dim)
 
 
 try 
-    temp = load('projectedKmeanHS16pics.mat');
+    temp = load('dictionary.mat');
     U = temp.U;
 catch
     % Input the alternative here
