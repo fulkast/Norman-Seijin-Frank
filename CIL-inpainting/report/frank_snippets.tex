@@ -44,3 +44,7 @@ To tackle the issue of densely populated masks, one of our approaches was to inf
 \end{algorithmic}
   \vspace{-0.4cm}%
 \end{algorithm}
+
+\subsection {Discussion on Using a shorter dictionary}
+
+As discussed in (lecture 9 slide 38, to be referenced), the recovery of a representation using matching pursuit is prone to the coherence amongst the dictionary's atoms. For a fixed dimensionality, the more atoms contained in the dictionary, the higher the chances of there being greater coherence, leading to poorer reconstructions. The brevity of our learned dictionary not only allows for the low error reconstructions compared to baseline techniques as depicted in fig(to put in comparison figure), but also, does so at a faster rate since the matching pursuit process searches through less atoms. Reconstruction speed is of great consideration especially when concerned with inpaiting on large data sets, videos etc.
