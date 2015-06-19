@@ -13,13 +13,27 @@ function Z = sparseCoding(U, X, M, sigma, rc_min)
 % OUTPUT
 % Z: MP coding
 %
+PROPAGATION = false;
 
 l = size(U,2);
 n = size(X,2);
 Z = zeros(l,n);
 % Loop over all observations in the columns of X
-for nn = 1:n
-    
+
+% Set up patch propagation, if enabled.
+if PROPAGATION
+    blocksize = size(X,1)^.5;
+    [maskcount, order] = sort(sum(M,1),'descend');
+    masking_quality_cutoff = .5;
+
+    seq = order;
+    seq(maskcount/blocksize/blocksize >= masking_quality_cutoff) = [];
+else
+    order = 1:n;
+end
+
+for nn = order
+        
     % Initialize the residual with the observation x. Only take into  
     % account the known observations that are not masked out by m
     m = M(:,nn);
@@ -48,4 +62,21 @@ for nn = 1:n
     end
     % Add the calculated coefficient vector z to the overall matrix Z
     Z(:,nn) = z;
+    
+    if PROPAGATION
+        sigma__ = 0.005; %stopping criterion for sparsecoding
+        rc_min__ = 0.3; %stopping criterion for sparsecoding
+        X(:,nn) = U*Z(:,nn);
+        sz = [512, 512];
+        [X,M,seq] = stencil(X,M,U,nn,blocksize,sz,seq,masking_quality_cutoff,sigma__,rc_min__);
+        seq(seq==nn) = [];
+        figure(1); imshow(my_col2im(X, sqrt(size(X,1)), sz, 8, [0,0], true));% pause(0.1)
+        %     subplot(1,2,1)
+        %     imshow(DictionaryPlot(X,[32 32],16))
+        %     drawnow;
+        %     subplot(1,2,2)
+        %    imshow(imresize(reshape(X(:,nn),16,16),32));pause
+        %     fprintf('Took %d iterations\n',it);
+        %     seq = order;
+    end
 end
