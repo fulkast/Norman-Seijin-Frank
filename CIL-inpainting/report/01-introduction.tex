@@ -29,25 +29,25 @@ Inpainting is an image processing technique used to infer the value of unknown p
 	   \centering
 	   \includegraphics[width=.9\columnwidth]{graphics/object_removal_gray.png}%
       	   \caption{Object removal
-	      \label{fig:apps:watermarks}
+	      \label{fig:apps:object_removal}
 	   }
 	\end{subfigure}\hfill%
-	\caption{Sample applications for inpainting. [TODO: REF OF IMAGE SOURCES]
+	\caption{Sample applications for inpainting. (Images \ref{fig:apps:image_restoration}), \ref{fig:apps:noise_removal}), and \ref{fig:apps:watermarks}) are taken from \cite{CIL2015}, \ref{fig:apps:object_removal}) is from \cite{criminisi2004region})
 	   \label{fig:apps}
 	}
 \end{figure*}
 
 \mypar{Existing work}
-There exist many different techniques for inpainting, sometimes very specific to a certain application. For example noise reduction or recovering has been treated by various approaches using filter theory, Bayesian framework [TODO REFS]. Others [TODO REF] apply texture-synthesis approaches where the objective is to remove (potentially large) objects from an image by mimicking the surrounding region of the to-be-removed objected. Very popular in the image processing community is the exemplar-based method described by Criminisi et al., [REF CRIMINISI], an onion-peel approach where local gradients steer the fill-in procedure, which helps to preserve edges in the c. The correct reconstruction of the occluded region is of lesser importance in this approach and it impresses with a good overall visual perception.
+Many different techniques exist for inpainting, see for example \cite{tauber2007review} for a review of methods originating in the domain of computer vision. A very common approach is referred to as \textit{texture-synthesis} where the objective is to remove (potentially large) objects from an image by mimicking the surrounding region of the to-be-removed objected. Very popular in the image processing community is the method described by Criminisi et al. \cite{criminisi2004region}, an onion-peel approach where local gradients steer the fill-in procedure, which helps to not only preserve texture but also structure.
+
+Recently, inpainting driven by sparse encoding, a concept from the domain of statistical learning, became popular, see for example \cite{fadili2009inpainting} or \cite{elad2005simultaneous}. 
 
 \mypar{Our approach}
-The method presented here is based on sparse coding of image patches. This technique can be compared with an interpolation scheme that takes into account . The results achieved with this method a
-
-The novelty of our patch-based method consists of the combination of the following components:
+The method presented here is based on sparse coding of image patches, which we combine with ideas that are inspired by the works of \cite{criminisi2004region}. The novelty of our patch-based method consists of the combination of the following components:
 \begin{itemize}
-   \item Intelligent use of neighboring patches to support the sparse encoding of a patch.
-   \item Learning a dictionary 
-   \item Redundant reconstruction of missing pixels by overlapping patches and 
+   \item Valuable Information Propagation (VIP): Use evidence found in neighbouring patches for the sparse coding.
+   \item Confidence Blending (CB): Redundant reconstruction of missing pixels by overlapping patches.
+   \item A scheme to learn under-complete dictionaries that allow a reliable and fast encoding.
 \end{itemize}
 
-\mypar{Structure of the text} In section \ref{sec:methods} some background information about the proposed methods is presented. Section \ref{sec:results} presents our implementation which is then compared in the subsequent section \ref{discussion}. 
+\mypar{Structure of the text} In section \ref{sec:methods} the proposed method is presented in depth. Section \ref{sec:results} presents our implementation which is then discussed in the subsequent section \ref{sec:discussion}. 
