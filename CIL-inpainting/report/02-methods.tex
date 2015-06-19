@@ -1,41 +1,55 @@
-\section{Methods (The Structure of a Paper)}
+\section{Methods}
 \label{sec:methods}
-\label{sec:structure-paper}
 
 In general the inpainting problem can be seen as a Maximum Likelihood Estimation (MLE) problem where the objective is to fill the missing pixels with most likely values, given the observed data. We represent the known values of the image through sparse encoding and during the process, infer pixel values at the locations of the unknown pixels, using the characteristics of the encoding basis. Popular bases include Discrete Fourier Transforms (DCT), Haar wavelets etc. which demonstrate favorable qualities for image encoding as they exhibit characteristics similar to generic image features. To achieve the sparse encoding we use the matching pursuit algorithm which serves to meet the following criterion (insert equation line 36 lecture 9).
 
-Inpainting through sparse coding relies on infering unknown values based on the impact the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images.
+Inpainting through sparse coding relies on inferring unknown values based on the impact the known pixels incur on the chosen basis. Therefore, for a given genre of images it is advantageous to utilize a custom dictionary which can easily encode the given genre's typical image characteristics. For example  in (Elad, Querre, Donoho), curvelets were demonstrated to be specifically efficient at encoding cartoon images.
+
+In the following, we present our proposed method which consists of three components that extend the aforementioned basic approach: First, we discuss the technique that we applied to train dictionaries. Secondly, we introduce valuable information propagation (VIP) and confidence blending (CB), two different techniques that aim at improving the results by increasing the support when inferring the missing pixels.
+
+\subsection{Confidence Blending}
+Inpainting by means of sparse coding operates on image patches, that is, the missing pixels are filled patch by patch. To introduce redundancy, we suggest that these image patches overlap by a certain degree. This way, it is possible to combine suggestions for missing pixels from different patches. Consider for example patches of size $p\times p$ that overlap each other by $o=1-p/f$, $f=2$. Then every pixel of the input image (except for those within the border of width $o$) will be covered by 4 patches. This situation is depicted in figure [TODO REF]. Hence, the reconstruction is 4-way redundant. Higher redundancy can be achieved for higher $f$, but this comes at a higher computational cost since the number of patches increases quadratically in $f$. Note that the overlapping regions are of size $p/f$, we call them \textit{patchlets}.
+
+We refer to \textit{blending} when patches are combined. The simplest way of blending is to calculate a weighted average of the patchlets $p_i, i\in\{1,2,3,4\}$ with a fixed weigh $w_i$: $p=\sum_i w_i \odot p_i/\sum_i w_i$ (where $\odot$ denotes the pixel-wise multiplication of patch-sized matrices). Our experiments show the that this has a very beneficial effect on the visually perceived result because small artifacts are evened out.
+
+In our method, we opted for a dynamic weighing that aims, before anything, at improving the overall visual perception. 
+The human visual system in general is very sensitive to discontinuities (cracks). Hence, it is preferable to avoid a reconstruction that exhibits strong gradients in luminosity at the border of an inpainted area.\footnote{Of course, it may happen that edges in the image coincide with a mask boundary. But the chance that these correlate with the boundary of typical masks is in general small.}
+
+This motivates our \textit{confidence blending} (CB) method, which operates with weights that take into account the luminosity gradients across mask borders. The weights are calculated in the following way. If $M$ denotes the mask, $\partial M$ the boundary of the mask and $I_R$ the reconstructed image, then a confidence $c(j) \in [0,1]$ can be calculated for every pixel $j\in \partial M$:
+\begin{align*}
+c_1(j) &= 1-\kappa|\nabla M \cdot \nabla I_R|\\
+c_2(j) &= 1-\kappa \Vert\nabla I_R\Vert_2\\
+i &\in \partial M
+\end{align*}
+The confidence $c_1$ expresses how strongly the image gradients on $\partial M$ correlate with the mask borders. Low values of $c_1$ indicate that the mask boundary coincides with an edge found in the reconstructed image. Note that $\kappa$ is used to scale the gradient expression such that it maps to the range $[0,1]$. $c_2$ is a simpler confidence measure that ignores the gradient directions. For the sake of speed, our implementation\footnote{This is justified by the fact that $c_1$ does not yield much better results.} uses $c_2$.
+
+Next, these point-wise confidence observations along $\partial M$ can be assembled into a weight $W$. A convolution with a Gaussian kernel\footnote{Our implementation uses kernel size $k=3$ and $\sigma=1$} helps to spread the information from the border to the inner of the mask. Pixels outside the mask are ignored.
+
+Repeating this for the $f^2$ reconstructed images $I_{R_i}$ yields masks $W_i$, with which weighted blending can be performed as already done for the simple scheme.
+
+Blending improves the perceived quality because the support is increased for the filled in pixels: every patch covers a different part of the image.
+
 
 
 \subsection{Dictionary learning}
+The dictionary $U$ plays a decisive role both in terms of reconstruction quality and run-time. It further has a strong impact on the sparsity of the encoding that is possible with it. Hence it is important to elaborate on the particular choice of the dictionary. In the following we present our methods how to learn dictionaries. For a definition of terms such as \textit{dictionary} or \textit{atoms}, and a description of how sparse coding operates on these, we refer to [REF CLASS NOTES].
 
-Another direction in which we investigated is the construction of the dictionary we would use for our sparse coding. The nature of a dictionary not only determines the quality of the inpainting result, but also the speed of the inpainting process, depending on the size of the dictionary as well as the degree of sparseness reachable with it. 
-The choice of dictionary was particularly of interest in our case to improve the running time. The approach we adopted for the reconstruction of the image would a priori assure a good quality of the reconstruction, however on the expense of the time necessary for the reconstruction, hence the need of a dictionary which would limit this trade-off without affecting too much the improved quality of the reconstruction.
-With this objective in mind, we built a under-complete dictionary on the space of patches of size 16x16, composed of 64 atoms (25 percent of the total dimension), by applying the approximate K-SVD algorithm on a training data customized for our need. We also paid particular attention to the initialization of the learning process, since this method is known to be initialization-sensitive [TODO REF]. In the rest of this section we will refer to the space of patches of size 16x16 as $E$.
+The objective is to assemble a lightweight dictionary on the space of $p \times p$ patches $\mathbb{E}$ such that it is still able to accurately encode image patches. Motivated by experiments, we decided to rely on under-complete dictionaries for $p=16$ pixels that are composed of 64 atoms (25\% of the dimension of $\mathbb{E}$). To train such a dictionary, we suggest to apply the approximate \textit{K-SVD} algorithm on a \textit{training data} customized for our purposes. Particular attention has to be paid for the \textit{initialization} of the learning process. [TODO REF]. 
 
 \mypar{K-SVD algorithm}
-The algorithm takes a training set of patches $X$, and learn a dictionary $U$, starting from an initialized value of $U$ and iteratively learning to fit to $X$ in a more efficient way. 
+The algorithm takes a training set of patches $X = (p_i, \ldots p_n), p_i \in \mathbb{E}$ and learns a dictionary $U$, starting from an initial dictionary $U_0$ and iteratively modifying $U$ to fit to $X$ in a more efficient way. [TODO VERY UNPRECISE! Formula?]
 For all dictionaries, we used this algorithm with 15 iterations, using the same training data set.
 
-\mypar{Training Data set}
-The dictionary being under-complete, loss of information will inevitably occur. The atoms will hence need to be very efficient in reconstructing the image without losing important information. In other words, the atoms need to be able to describe characteristics of patches that have a high-variability among the kind of patches that we want to reconstruct. The aspects of patches with low-variability can be easily estimated by the mean, with a minimal loss of information. 
-To achieve this, we first gathered patches of size 16x16 extracted from 36 pictures of size 512x512, consisting of photography of cities, nature and animals. We then applied principal component analysis (PCA) on these patches to deduce the most significant subspace of $E$ of dimension 64, i.e. the subspace of $E$ that include the highest variability of value among patches of real-world photography. We then projected the whole training set as well as our learning process onto that subspace. That way, we ensure that the learned 64 atoms stay in this a priori significant subspace, without getting lost into the less-meaningful directions of $E$, allowing them to efficiently reconstruct a patch.
+\mypar{Construction of training set}
+The dictionary being under-complete, loss of information is inevitable when decoding an image. However, the choice of the dictionary should reflect the characteristics of images for which it is targeted in the best possible way. 
+
+We constructed our test set by extracting $16\times 16$ patches from 36 randomly selected photographs of size $512\times 512$ pixels, showing mostly real-life scenes with varying characteristics. To this pool of patches we applied Principal Component Analysis (PCA) on these patches to find the most significant 64-dimensional subspace $\eta_{PCA}\in\mathbb{E}$ that preserves the characteristics contained in the patches the best. The patches then are projected onto $\eta_{PCA}$, which results in the actual data-set $X$ that is used for learning. The complete process of dictionary learning operates within $\eta_{PCA}$, safely ignoring the less relevant directions of $\mathbb{E}$.
 
 \mypar{Initialization}
-The algorithm we chose is sensitive to the choice of the initial candidate, it optimizes it locally and greedily until no progress is possible. We implemented 2 main different ways to initialize the learning process:
+K-SVD requires an initial dictionary $U_0$, outgoing from which it optimizes greedily. We observed that the choice of $U_0$ has a strong influence on the resulting dictionary $U$. To better control over this step, we implemented 3 different ways to initialize the learning process and compared them with each other:
 \begin{itemize}
-   \item From a known dictionary: in this method, we initialize the dictionary on a known dictionary, such as a 64-atom DCT (Discrete Cosine Transform) dictionary, or the 64 significant vectors obtained by applying PCA to the training set.  
-   \item k-means initialization: in this method, we initialize the dictionary based on the training data set. We first center and normalize the training data, after which we apply the K-means algorithm with K=64 based on the euclidean norm, and use the normalized 64 centroids as initializing atoms. To improve the robustness of the K-mean algorithm, we applied the algorithm 10 times and chose the result which had the smallest mean pairwise-distance with other clustering. 
+   \item Fixed dictionary: with this approach, the dictionary is initialized with a particular dictionary, such as a 64-atom DCT dictionary, or the 64 significant vectors obtained by applying PCA to the training set.  
+   \item $K$-means initialization: here, we initialize the dictionary based on the training data set $X$. We first center and normalize the training data, after which we apply the $K$-means algorithm with $K$=64 based on the euclidean norm, and use the normalized 64 centroids as initializing atoms. To improve the robustness of the $K$-mean algorithm, we applied the algorithm 10 times and chose the result which had the smallest mean pairwise-distance with other clustering. 
+   \item Random initialization: A randomly-generated initialization of $U$ is used as a reference. 
 \end{itemize}
-A randomly-generated atom initialization have also been implemented to serve as a reference for studying the efficiency of other initialization methods. 
 
-Lastly, to compare the efficiency of the overall dictionary performance, we set the baseline reference as the standard complete DCT dictionary.
-
-
-
-
-TODO: Subsection ``Background" to introduce roughly the concepts of sparse coding.
-
-TOOD: Present our method.
-
-TODO: Present baseline method and Criminisi method. (My suggestion is to compare the results of our algorithm with the class winner. They probably will like this approach. We probably won't beat the performance of the Criminisi approach in general, but we might be better in some cases, furthermore we will be faster for sure...
