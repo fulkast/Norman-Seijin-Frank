@@ -1,5 +1,18 @@
 \section*{Seijin's Snippets}
 
+\subsection{Blending overlapping patches}
+
+In this first method, the image is divided into fully-overlapping patches [TODO FIG 1 (PATCH OVERLAP.jpeg)]., patches on which sparse-coding is performed individually. Each missing pixel of the picture is hence treated four times by sparse-coding overall, as every pixel is covered by four overlapping patches as shown in figure 1. 
+The exchange of information over the individually-filled masks takes place at moment of the reconstruction of the whole picture from these four candidates. Since each one of the four patches filled the missing values given a different surrounding, some may be performing better than others. Hence, with a proper reconstruction method, we can take the best out of the additional information provided by overlapping.
+One intuitive idea would be to take a weighted average of the four versions. One could think of taking a uniform weight, or a gradient shift of weight from one patch to another. In our model, we opted for a case-dependent weighing that aims before anything to improve the visual perception of the quality of the inpainting. 
+Our eyes are in general very sensitive to contrast. Hence, in order to improve the perceived quality of an inpainting, one needs to avoid a reconstruction that presents strong gradients in luminosity at the border of an inpainted area. This motivation lead to our blending method, which decides the weight distribution for every pixel, in order to locally minimize any jump in luminosity across a mask border.
+Given the four versions of reconstruction, we calculate for each one of them the absolute-gradient on every pixel at the border of the inpainted mask. Intuitively, the score for each pixel at the border represent the un-confidence in the correctness of the inpainting at this location, since there should not be a strong jump in luminosity from one side of the border to another. For each of the pixels, we then diffuse its un-confidence score to all of its neighboring pixels with a decreasing factor, such that we obtain in the end of the process, an un-confidence score for every inpainted pixels, for each of the four versions of reconstruction. The weight distribution is then defined as the inverse of the exponential of the un-confidence score.
+[TODO: INSERT PICTURES 1(BEFORE.png) 2(AFTER.png) 3(WEIGHT.jpeg)]
+
+1: Result of the uniform average of the four versions of inpainting. We notice some artifacts in the shape of the mask, due to the unnatural gradient at its border.
+2: Result of our blending method. Some artifacts almost completely disappeared.
+3: A picture showing the un-confidence score of inpainted pixels. Black pixels represent low confidence. Such a picture is produced for each of the four inpainting results.
+
 \subsection{Dictionary learning}
 
 Another direction in which we investigated is the construction of the dictionary we would use for our sparse coding. The nature of a dictionary not only determines the quality of the inpainting result, but also the speed of the inpainting process, depending on the size of the dictionary as well as the degree of sparseness reachable with it. 
